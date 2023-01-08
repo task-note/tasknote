@@ -3,9 +3,10 @@ import Icon, { IconProps } from '@atlaskit/icon';
 
 const NewFileIcon = (props: IconProps | never) => {
   const { secondaryColor, size, label } = props;
+  const CustomGlyph = () => <VscNewFile strokeWidth="0.5" />;
   return (
     <Icon
-      glyph={VscNewFile}
+      glyph={CustomGlyph}
       label={label}
       size={size}
       secondaryColor={secondaryColor}
@@ -15,9 +16,10 @@ const NewFileIcon = (props: IconProps | never) => {
 
 const NewFolderIcon = (props: IconProps | never) => {
   const { secondaryColor, size, label } = props;
+  const CustomGlyph = () => <VscNewFolder strokeWidth="0.5" />;
   return (
     <Icon
-      glyph={VscNewFolder}
+      glyph={CustomGlyph}
       label={label}
       size={size}
       secondaryColor={secondaryColor}
