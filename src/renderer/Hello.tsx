@@ -1,4 +1,6 @@
+import Button from '@atlaskit/button';
 import icon from '../../assets/tasknote.png';
+import { NewFileIcon, NewFolderIcon } from './CustomIcons';
 
 export default function Hello() {
   return (
@@ -8,30 +10,18 @@ export default function Hello() {
       </div>
       <h1>Organize your project like this!</h1>
       <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
+        <Button
+          appearance="primary"
+          iconBefore={<NewFileIcon label="" size="small" />}
         >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            New Project Note
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
+          New Project Note
+        </Button>
+        <Button
+          appearance="primary"
+          iconBefore={<NewFolderIcon label="" size="small" />}
         >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            New Folder
-          </button>
-        </a>
+          New Folder
+        </Button>
       </div>
     </div>
   );

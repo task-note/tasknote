@@ -7,7 +7,9 @@ import {
   Section,
   ButtonItem,
 } from '@atlaskit/side-navigation';
+import { token } from '@atlaskit/tokens';
 import './Sidebar.css';
+import { NewFileIcon, NewFolderIcon } from './CustomIcons';
 
 const NaviMenu = () => {
   return (
@@ -17,34 +19,56 @@ const NaviMenu = () => {
       </NavigationHeader>
       <NavigationContent>
         <Section>
-          <ButtonItem>New Project Note</ButtonItem>
-          <ButtonItem>New Folder</ButtonItem>
+          <ButtonItem
+            iconBefore={
+              <NewFileIcon
+                size="small"
+                label=""
+                secondaryColor={token('color.icon.brand', '#333333')}
+              />
+            }
+          >
+            New Project Note
+          </ButtonItem>
+          <ButtonItem
+            iconBefore={
+              <NewFolderIcon
+                size="small"
+                label=""
+                secondaryColor={token('color.icon.brand', '#333333')}
+              />
+            }
+          >
+            New Folder
+          </ButtonItem>
         </Section>
       </NavigationContent>
     </div>
   );
 };
 
-export default function App() {
+export default function Sidebar() {
   const sidebarRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(268);
+  const [sidebarWidth, setSidebarWidth] = useState(250);
 
   const startResizing = React.useCallback(() => {
     setIsResizing(true);
+    document.body.style.cursor = 'col-resize';
   }, []);
 
   const stopResizing = React.useCallback(() => {
     setIsResizing(false);
+    document.body.style.cursor = 'default';
   }, []);
 
   const resize = React.useCallback(
     (mouseMoveEvent: { clientX: number }) => {
       if (isResizing && sidebarRef.current) {
-        setSidebarWidth(
+        const targetWidth =
           mouseMoveEvent.clientX -
-            sidebarRef.current.getBoundingClientRect().left
-        );
+          sidebarRef.current.getBoundingClientRect().left;
+        setSidebarWidth(targetWidth);
       }
     },
     [isResizing]
