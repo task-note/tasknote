@@ -10,6 +10,7 @@ import {
 import { token } from '@atlaskit/tokens';
 import './Sidebar.css';
 import { NewFileIcon, NewFolderIcon } from './CustomIcons';
+import FileTree from './FileTree';
 
 const NaviMenu = () => {
   return (
@@ -42,6 +43,7 @@ const NaviMenu = () => {
             New Folder
           </ButtonItem>
         </Section>
+        <FileTree />
       </NavigationContent>
     </div>
   );
@@ -88,7 +90,6 @@ export default function Sidebar() {
       ref={sidebarRef}
       className="app-sidebar"
       style={{ width: sidebarWidth }}
-      onMouseDown={(e) => e.preventDefault()}
     >
       <NaviMenu />
       <div className="app-sidebar-resizer" onMouseDown={startResizing} />

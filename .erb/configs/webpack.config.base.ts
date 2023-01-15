@@ -27,6 +27,20 @@ const configuration: webpack.Configuration = {
           },
         },
       },
+      {
+        test: /\.less$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+          {
+            loader: 'less-loader',
+          },
+        ],
+      },
     ],
   },
 
