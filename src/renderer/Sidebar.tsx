@@ -2,49 +2,69 @@
 import React, { useState, useRef } from 'react';
 import {
   Header,
+  Footer,
   NavigationHeader,
   NavigationContent,
+  NavigationFooter,
   Section,
   ButtonItem,
 } from '@atlaskit/side-navigation';
 import { token } from '@atlaskit/tokens';
 import './Sidebar.css';
-import { NewFileIcon, NewFolderIcon } from './CustomIcons';
+import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
 
 const NaviMenu = () => {
+  const foo = () => {
+    console.log('will add it later');
+  }
   return (
     <div className="app-sidebar-content">
-      <NavigationHeader>
-        <Header description="">Project Note</Header>
-      </NavigationHeader>
-      <NavigationContent>
-        <Section>
-          <ButtonItem
-            iconBefore={
-              <NewFileIcon
-                size="small"
-                label=""
-                secondaryColor={token('color.icon.brand', '#333333')}
-              />
+      <div className="app-sidebar-inner">
+        <NavigationHeader>
+          <Header description="">Project Note</Header>
+        </NavigationHeader>
+        <NavigationContent>
+          <Section>
+            <ButtonItem
+              iconBefore={
+                <NewFileIcon
+                  size="small"
+                  label=""
+                  secondaryColor={token('color.icon.brand', '#333333')}
+                />
+              }
+            >
+              New Project Note
+            </ButtonItem>
+            <ButtonItem
+              iconBefore={
+                <NewFolderIcon
+                  size="small"
+                  label=""
+                  secondaryColor={token('color.icon.brand', '#333333')}
+                />
+              }
+            >
+              New Folder
+            </ButtonItem>
+          </Section>
+          <FileTree />
+        </NavigationContent>
+        <NavigationFooter>
+          <Footer
+            iconBefore={<MainIcon />}
+            description={
+              <div>
+                <a onClick={foo}>Give feedback</a> {' ∙ '}
+                <a onClick={foo}>Learn more</a>
+              </div>
             }
           >
-            New Project Note
-          </ButtonItem>
-          <ButtonItem
-            iconBefore={
-              <NewFolderIcon
-                size="small"
-                label=""
-                secondaryColor={token('color.icon.brand', '#333333')}
-              />
-            }
-          >
-            New Folder
-          </ButtonItem>
-        </Section>
-        <FileTree />
-      </NavigationContent>
+            Organize Your Project Like this!
+          </Footer>
+        </NavigationFooter>
+      </div>
     </div>
   );
 };

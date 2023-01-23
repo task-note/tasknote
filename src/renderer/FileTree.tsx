@@ -1,7 +1,7 @@
 /* eslint no-console:0, react/no-danger: 0 */
 import { Component } from 'react';
 import Tree from 'rc-tree';
-import './rctree.less';
+import './FileTree.less';
 import { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
 import { EventDataNode, FieldDataNode, Key } from 'rc-tree/lib/interface';
 
@@ -171,14 +171,13 @@ export default class FileTree extends Component<
   render() {
     const { gData } = this.state;
     return (
-      <div className="animation">
-        <h2>expanded</h2>
+      <div className="filetree">
+        <span className="filetree_title">Folder</span>
         <style dangerouslySetInnerHTML={{ __html: STYLE }} />
         <div style={{ display: 'flex' }}>
           <div style={{ flex: '1 1 50%' }}>
             <Tree<TreeDataType>
               defaultExpandAll
-              height={200}
               itemHeight={20}
               draggable
               virtual={false}
