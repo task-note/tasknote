@@ -69,8 +69,8 @@ function getTreeData(): TreeDataType[] {
               key: '1-0-1',
               title: 'node 1-0-1',
               children: [
-                { key: '1-0-1-0', title: 'node 1-0-1-0' },
-                { key: '1-0-1-1', title: 'node 1-0-1-1' },
+                { key: '1-0-1-0', title: 'node 1-0-1-0', isLeaf: false },
+                { key: '1-0-1-1', title: 'node 1-0-1-1', isLeaf: false },
               ],
             },
             { key: '1-0-2', title: 'node 1-0-2' },
@@ -95,6 +95,18 @@ export default class FileTree extends Component<
       gData: getTreeData(),
     };
   }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.updateDimensions);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions);
+  }
+
+  updateDimensions = () => {
+    console.log('update dimensions');
+  };
 
   onDrop = (
     info: NodeDragEventParams<TreeDataType> & {
@@ -172,12 +184,13 @@ export default class FileTree extends Component<
     const { gData } = this.state;
     return (
       <div className="filetree">
-        <span className="filetree_title">Folder</span>
+        <span className="filetree_title">Folders</span>
         <style dangerouslySetInnerHTML={{ __html: STYLE }} />
         <div style={{ display: 'flex' }}>
           <div style={{ flex: '1 1 50%' }}>
             <Tree<TreeDataType>
               defaultExpandAll
+              // height={200}
               itemHeight={20}
               draggable
               virtual={false}
@@ -188,7 +201,7 @@ export default class FileTree extends Component<
                 console.log('drag enter', info);
               }}
               onDrop={this.onDrop}
-              style={{ overflow: 'scroll' }}
+              // style={{ overflow: 'scroll' }}
               treeData={gData}
               expandAction={false}
             />

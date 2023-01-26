@@ -17,14 +17,13 @@ import FileTree from './FileTree';
 const NaviMenu = () => {
   const foo = () => {
     console.log('will add it later');
-  }
+  };
+
   return (
     <div className="app-sidebar-content">
       <div className="app-sidebar-inner">
         <NavigationHeader>
           <Header description="">Project Note</Header>
-        </NavigationHeader>
-        <NavigationContent>
           <Section>
             <ButtonItem
               iconBefore={
@@ -49,6 +48,8 @@ const NaviMenu = () => {
               New Folder
             </ButtonItem>
           </Section>
+        </NavigationHeader>
+        <NavigationContent>
           <FileTree />
         </NavigationContent>
         <NavigationFooter>
