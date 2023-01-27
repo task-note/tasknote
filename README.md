@@ -41,3 +41,7 @@ npm run package
 ## License
 
 MIT © [Tasknote](https://github.com/oeichenwei/tasknote)
+
+## Package
+
+Macos: to [disable code signing](https://www.electron.build/code-signing.html) (export CSC_IDENTITY_AUTO_DISCOVERY=false)

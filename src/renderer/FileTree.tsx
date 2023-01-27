@@ -1,9 +1,9 @@
 /* eslint no-console:0, react/no-danger: 0 */
 import { Component } from 'react';
-import Tree from 'rc-tree';
+import Tree from '../../tree/src/Tree';
 import './FileTree.less';
-import { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
-import { EventDataNode, FieldDataNode, Key } from 'rc-tree/lib/interface';
+import { NodeDragEventParams } from '../../tree/src/contextTypes';
+import { EventDataNode, FieldDataNode, Key } from '../../tree/src/interface';
 
 const STYLE = `
 .rc-tree-child-tree {
@@ -108,6 +108,19 @@ export default class FileTree extends Component<
     console.log('update dimensions');
   };
 
+  onSelect = (
+    selectedKeys: Key[],
+    info: {
+      event: 'select';
+      selected: boolean;
+      node: EventDataNode<TreeDataType>;
+      selectedNodes: TreeDataType[];
+      nativeEvent: MouseEvent;
+    }
+  ) => {
+    console.log('onSelect, selected=', selectedKeys, info);
+  };
+
   onDrop = (
     info: NodeDragEventParams<TreeDataType> & {
       dragNode: EventDataNode<TreeDataType>;
@@ -203,7 +216,9 @@ export default class FileTree extends Component<
               onDrop={this.onDrop}
               // style={{ overflow: 'scroll' }}
               treeData={gData}
-              expandAction={false}
+              expandAction="doubleClick"
+              checkable={false}
+              onSelect={this.onSelect}
             />
           </div>
         </div>
