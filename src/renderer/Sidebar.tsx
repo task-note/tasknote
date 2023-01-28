@@ -10,13 +10,38 @@ import {
   ButtonItem,
 } from '@atlaskit/side-navigation';
 import { token } from '@atlaskit/tokens';
+
 import './Sidebar.css';
 import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
+import showInputDialog from './InputDialog';
 
 const NaviMenu = () => {
+  const fileTreeRef: React.RefObject<FileTree> = useRef(null);
+
+  const newFolder = () => {
+    showInputDialog(
+      'Create New Folder',
+      'Please input the folder name:',
+      (val: string) => {
+        console.log('newFolder:', val);
+      }
+    );
+  };
+
+  const newFile = () => {
+    showInputDialog(
+      'Create New File',
+      'Please input the file name:',
+      (val: string) => {
+        console.log('newFile:', val);
+      }
+    );
+  };
+
   const foo = () => {
-    console.log('will add it later');
+    const element = fileTreeRef.current;
+    console.log('will add it later', element?.getCurrentSelect());
   };
 
   return (
@@ -27,30 +52,32 @@ const NaviMenu = () => {
           <Section>
             <ButtonItem
               iconBefore={
-                <NewFileIcon
-                  size="small"
-                  label=""
-                  secondaryColor={token('color.icon.brand', '#333333')}
-                />
-              }
-            >
-              New Project Note
-            </ButtonItem>
-            <ButtonItem
-              iconBefore={
                 <NewFolderIcon
                   size="small"
                   label=""
                   secondaryColor={token('color.icon.brand', '#333333')}
                 />
               }
+              onClick={newFolder}
             >
               New Folder
+            </ButtonItem>
+            <ButtonItem
+              iconBefore={
+                <NewFileIcon
+                  size="small"
+                  label=""
+                  secondaryColor={token('color.icon.brand', '#333333')}
+                />
+              }
+              onClick={newFile}
+            >
+              New Project Note
             </ButtonItem>
           </Section>
         </NavigationHeader>
         <NavigationContent>
-          <FileTree />
+          <FileTree ref={fileTreeRef} />
         </NavigationContent>
         <NavigationFooter>
           <Footer
@@ -71,7 +98,7 @@ const NaviMenu = () => {
 };
 
 export default function Sidebar() {
-  const sidebarRef = useRef(null);
+  const sidebarRef: React.RefObject<HTMLDivElement> = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(250);
 
@@ -87,10 +114,10 @@ export default function Sidebar() {
 
   const resize = React.useCallback(
     (mouseMoveEvent: { clientX: number }) => {
-      if (isResizing && sidebarRef.current) {
+      const element = sidebarRef.current;
+      if (isResizing && element) {
         const targetWidth =
-          mouseMoveEvent.clientX -
-          sidebarRef.current.getBoundingClientRect().left;
+          mouseMoveEvent.clientX - element.getBoundingClientRect().left;
         setSidebarWidth(targetWidth);
       }
     },

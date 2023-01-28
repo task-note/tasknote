@@ -120,7 +120,11 @@
     "@atlaskit/css-reset": "^6.3.18",
     "@atlaskit/button": "^16.5.3",
     "@atlaskit/icon": "^21.11.4",
-    "@atlaskit/tokens": "^0.13.0"
+    "@atlaskit/tokens": "^0.13.0",
+    "@atlaskit/form": "^8.8.3",
+    "@atlaskit/textfield": "^5.3.4",
+    "@atlaskit/modal-dialog": "^12.4.5",
+    "@emotion/css": "^11.10.5"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",

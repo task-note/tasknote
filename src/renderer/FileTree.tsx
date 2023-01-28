@@ -1,5 +1,5 @@
 /* eslint no-console:0, react/no-danger: 0 */
-import { Component } from 'react';
+import React, { Component } from 'react';
 import Tree from '../../tree/src/Tree';
 import './FileTree.less';
 import { NodeDragEventParams } from '../../tree/src/contextTypes';
@@ -86,14 +86,17 @@ interface FileTreeState {
 }
 
 export default class FileTree extends Component<
-  Record<string, string>,
+  Record<string, unknown>,
   FileTreeState
 > {
-  constructor(props: Record<string, string>) {
+  treeRef: React.RefObject<Tree<TreeDataType>>;
+
+  constructor(props: Record<string, unknown>) {
     super(props);
     this.state = {
       gData: getTreeData(),
     };
+    this.treeRef = React.createRef();
   }
 
   componentDidMount() {
@@ -104,8 +107,14 @@ export default class FileTree extends Component<
     window.removeEventListener('resize', this.updateDimensions);
   }
 
+  getCurrentSelect() {
+    const element = this.treeRef.current;
+    return element?.state.selectedKeys;
+  }
+
   updateDimensions = () => {
-    console.log('update dimensions');
+    const element = this.treeRef.current;
+    console.log('update dimensions', element?.state.selectedKeys);
   };
 
   onSelect = (
@@ -202,6 +211,7 @@ export default class FileTree extends Component<
         <div style={{ display: 'flex' }}>
           <div style={{ flex: '1 1 50%' }}>
             <Tree<TreeDataType>
+              ref={this.treeRef}
               defaultExpandAll
               // height={200}
               itemHeight={20}
