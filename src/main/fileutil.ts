@@ -22,7 +22,7 @@ async function buildFileTree(event: Electron.IpcMainEvent, path: string) {
     const allfiles = fs.readdirSync(subPath, { withFileTypes: true });
     for (let index = 0; index < allfiles.length; index++) {
       const file = allfiles[index];
-      log.info(file);
+      // log.info(file);
       const filePath = `${subPath}/${file.name}`;
       if (file.isFile()) {
         data.push({

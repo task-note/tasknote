@@ -3,6 +3,7 @@ import { Content, Main, PageLayout } from '@atlaskit/page-layout';
 import './App.css';
 import Sidebar from './Sidebar';
 import Hello from './Hello';
+import TaskEditor from './Editor';
 
 export default function App() {
   return (
@@ -12,7 +13,8 @@ export default function App() {
         <Main id="Content">
           <Router>
             <Routes>
-              <Route path="/" element={<Hello />} />
+              <Route path="/" element={<TaskEditor />} />
+              <Route path="/editor" element={<Hello />} />
             </Routes>
           </Router>
         </Main>
