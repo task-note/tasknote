@@ -15,26 +15,50 @@ import './Sidebar.css';
 import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
 import showInputDialog from './InputDialog';
+import { makeDir, TreeDataType, makeFile } from './FileOp';
 
 const NaviMenu = () => {
   const fileTreeRef: React.RefObject<FileTree> = useRef(null);
 
   const newFolder = () => {
+    const fileTree = fileTreeRef.current;
+    const currSel = fileTree?.getCurrentSelect();
+    let prefix = '.';
+    if (currSel && currSel.length > 0) {
+      prefix = currSel[0] as string;
+    }
     showInputDialog(
       'Create New Folder',
       'Please input the folder name:',
       (val: string) => {
-        console.log('newFolder:', val);
+        makeDir(`${prefix}/${val}`, (treeData: TreeDataType[]) => {
+          fileTree?.setState({
+            gData: treeData,
+          });
+        });
       }
     );
   };
 
   const newFile = () => {
+    const fileTree = fileTreeRef.current;
+    const currSel = fileTree?.getCurrentSelect();
+    let prefix = '.';
+    if (currSel && currSel.length > 0) {
+      prefix = currSel[0] as string;
+      if (fileTree?.getNodeByKey(prefix)?.isLeaf) {
+        prefix = prefix.substring(0, prefix.lastIndexOf('/'));
+      }
+    }
     showInputDialog(
       'Create New File',
       'Please input the file name:',
       (val: string) => {
-        console.log('newFile:', val);
+        makeFile(`${prefix}/${val}`, (treeData: TreeDataType[]) => {
+          fileTree?.setState({
+            gData: treeData,
+          });
+        });
       }
     );
   };

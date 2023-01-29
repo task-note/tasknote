@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import Tree from '../../tree/src/Tree';
 import './FileTree.less';
 import { NodeDragEventParams } from '../../tree/src/contextTypes';
-import { EventDataNode, FieldDataNode, Key } from '../../tree/src/interface';
+import { EventDataNode, Key } from '../../tree/src/interface';
+import { TreeDataType, loadFiles } from './FileOp';
 
 const STYLE = `
 .rc-tree-child-tree {
@@ -16,73 +17,27 @@ const STYLE = `
 }
 `;
 
-type TreeDataType = FieldDataNode<{
-  key: string;
-  title: string;
-  children?: TreeDataType[];
-}>;
-
-function getTreeData(): TreeDataType[] {
-  // big-data: generateData(1000, 3, 2)
-  return [
-    {
-      key: '0',
-      title: 'node 0',
-      children: [
-        { key: '0-0', title: 'node 0-0' },
-        { key: '0-1', title: 'node 0-1' },
-        { key: '0-3', title: 'node 0-3' },
-        { key: '0-8', title: 'node 0-8' },
-        {
-          key: '0-9',
-          title: 'node 0-9',
-          children: [
-            { key: '0-9-0', title: 'node 0-9-0' },
-            {
-              key: '0-9-1',
-              title: 'node 0-9-1',
-              children: [
-                { key: '0-9-1-0', title: 'node 0-9-1-0' },
-                { key: '0-9-1-1', title: 'node 0-9-1-1' },
-                { key: '0-9-1-2', title: 'node 0-9-1-2' },
-                { key: '0-9-1-3', title: 'node 0-9-1-3' },
-                { key: '0-9-1-4', title: 'node 0-9-1-4' },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      key: '1',
-      title: 'node 1',
-      // children: new Array(1000)
-      //   .fill(null)
-      //   .map((_, index) => ({ title: `auto ${index}`, key: `auto-${index}` })),
-      children: [
-        {
-          key: '1-0',
-          title: 'node 1-0',
-          children: [
-            { key: '1-0-0', title: 'node 1-0-0' },
-            {
-              key: '1-0-1',
-              title: 'node 1-0-1',
-              children: [
-                { key: '1-0-1-0', title: 'node 1-0-1-0', isLeaf: false },
-                { key: '1-0-1-1', title: 'node 1-0-1-1', isLeaf: false },
-              ],
-            },
-            { key: '1-0-2', title: 'node 1-0-2' },
-          ],
-        },
-      ],
-    },
-  ];
-}
-
 interface FileTreeState {
   gData: TreeDataType[];
+}
+
+function findNode(
+  key: string,
+  child: TreeDataType[]
+): TreeDataType | undefined {
+  let result;
+  for (let index = 0; index < child.length; index += 1) {
+    if (child[index].key === key) {
+      return child[index];
+    }
+    if (child[index].children) {
+      result = findNode(key, child[index].children as TreeDataType[]);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return result;
 }
 
 export default class FileTree extends Component<
@@ -94,9 +49,14 @@ export default class FileTree extends Component<
   constructor(props: Record<string, unknown>) {
     super(props);
     this.state = {
-      gData: getTreeData(),
+      gData: [],
     };
     this.treeRef = React.createRef();
+    loadFiles((treeData: TreeDataType[]) => {
+      this.setState({
+        gData: treeData,
+      });
+    });
   }
 
   componentDidMount() {
@@ -110,6 +70,11 @@ export default class FileTree extends Component<
   getCurrentSelect() {
     const element = this.treeRef.current;
     return element?.state.selectedKeys;
+  }
+
+  getNodeByKey(key: string) {
+    const { gData } = this.state;
+    return findNode(key, gData);
   }
 
   updateDimensions = () => {
