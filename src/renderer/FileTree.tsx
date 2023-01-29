@@ -52,11 +52,11 @@ export default class FileTree extends Component<
       gData: [],
     };
     this.treeRef = React.createRef();
-    loadFiles((treeData: TreeDataType[]) => {
+    loadFiles((treeData: TreeDataType[], sel: string) => {
       this.setState({
         gData: treeData,
       });
-    });
+    }, '');
   }
 
   componentDidMount() {

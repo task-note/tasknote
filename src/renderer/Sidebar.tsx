@@ -31,7 +31,7 @@ const NaviMenu = () => {
       'Create New Folder',
       'Please input the folder name:',
       (val: string) => {
-        makeDir(`${prefix}/${val}`, (treeData: TreeDataType[]) => {
+        makeDir(`${prefix}/${val}`, (treeData: TreeDataType[], sel: string) => {
           fileTree?.setState({
             gData: treeData,
           });
@@ -54,11 +54,14 @@ const NaviMenu = () => {
       'Create New File',
       'Please input the file name:',
       (val: string) => {
-        makeFile(`${prefix}/${val}`, (treeData: TreeDataType[]) => {
-          fileTree?.setState({
-            gData: treeData,
-          });
-        });
+        makeFile(
+          `${prefix}/${val}`,
+          (treeData: TreeDataType[], sel: string) => {
+            fileTree?.setState({
+              gData: treeData,
+            });
+          }
+        );
       }
     );
   };

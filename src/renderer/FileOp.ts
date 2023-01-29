@@ -6,12 +6,12 @@ export type TreeDataType = FieldDataNode<{
   children?: TreeDataType[];
 }>;
 
-export type LoadFilesCB = (treeData: TreeDataType[]) => void;
+export type LoadFilesCB = (treeData: TreeDataType[], sel: string) => void;
 
-function loadFiles(cb: LoadFilesCB) {
+function loadFiles(cb: LoadFilesCB, sel: string) {
   window.electron.ipcRenderer.sendMessage('fs', ['ls', '']);
   window.electron.ipcRenderer.once('ls', (treeData) => {
-    cb(treeData as TreeDataType[]);
+    cb(treeData as TreeDataType[], sel);
   });
 }
 
@@ -19,7 +19,9 @@ function makeDir(path: string, cb: LoadFilesCB) {
   window.electron.ipcRenderer.sendMessage('fs', ['mkdir', path]);
   window.electron.ipcRenderer.once('mkdir', (err, resPath) => {
     console.log('mkdir result:', resPath, err);
-    loadFiles(cb);
+    if (!err) {
+      loadFiles(cb, resPath as string);
+    }
   });
 }
 
@@ -30,7 +32,7 @@ function makeFile(path: string, cb: LoadFilesCB) {
       console.error('writefile result:', err);
       return;
     }
-    loadFiles(cb);
+    loadFiles(cb, path);
   });
 }
 
