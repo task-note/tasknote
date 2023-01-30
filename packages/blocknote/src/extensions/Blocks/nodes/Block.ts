@@ -383,8 +383,9 @@ export const Block = Node.create<IBlock>({
         () =>
           commands.command(({ tr }) => {
             const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
+            const curr = tr.selection.$anchor.node();
             const node = tr.selection.$anchor.node(-1);
-            if (isAtStartOfNode && node.type.name === "block") {
+            if (isAtStartOfNode && curr.type.name != "description" && node.type.name === "block") {
               // we're at the start of the block, so we're trying to "backspace" the bullet or indentation
               return commands.first([
                 () => commands.unsetList(), // first try to remove the "list" property
@@ -407,8 +408,9 @@ export const Block = Node.create<IBlock>({
             .command(({ tr, state, dispatch }) => {
               const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
               const anchor = tr.selection.$anchor;
+              const curr = anchor.node();
               const node = anchor.node(-1);
-              if (isAtStartOfNode && node.type.name === "block") {
+              if (isAtStartOfNode && curr.type.name != "description" && node.type.name === "block") {
                 if (node.childCount === 2) {
                   // BlockB has children. We want to go from this:
                   //
