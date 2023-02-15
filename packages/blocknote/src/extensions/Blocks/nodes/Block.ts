@@ -447,7 +447,6 @@ export const Block = Node.create<IBlock>({
                     gapEnd = to;
                     newNode = Fragment.from(cut.nodeAfter.copy(newNode));
                     nodeDepth = 2;
-                    return true;
                     // BlockA
                     //    BlockB
                     // BlockC
