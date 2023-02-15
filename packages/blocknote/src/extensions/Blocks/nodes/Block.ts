@@ -430,23 +430,17 @@ export const Block = Node.create<IBlock>({
                 node.type.name === 'block'
               ) {
                 if (node.childCount >= 2) {
-                  const cut = findCutBefore(anchor);
-                  const beforeNode = cut.doc.resolve(cut.pos - 2);
-                  const targetNode = beforeNode.node();
+                  let cut = findCutBefore(anchor);
+                  let beforeNode = cut.doc.resolve(cut.pos - 2);
+                  let targetNode = beforeNode.node();
                   let newNode = Fragment.from(targetNode.copy());
                   // eslint-disable-next-line one-var
                   let from = 0,
                     to = 0,
+                    currPos = anchor.pos,
                     gapStart = 0,
-                    nodeDepth = 1,
                     gapEnd = 0;
                   if (targetNode.type.name === 'blockgroup') {
-                    from = cut.pos - 2;
-                    to = cut.pos + node.nodeSize;
-                    gapStart = cut.pos;
-                    gapEnd = to;
-                    newNode = Fragment.from(cut.nodeAfter.copy(newNode));
-                    nodeDepth = 2;
                     // BlockA
                     //    BlockB
                     // BlockC
@@ -455,13 +449,28 @@ export const Block = Node.create<IBlock>({
                     // BlockA
                     //    BlockBBlockC
                     //    Description
-                  } else {
                     from = cut.pos - 2;
-                    const endSize = curr.nodeSize - 2;
-                    to = anchor.pos + endSize + 1;
-                    gapStart = anchor.pos;
-                    gapEnd = anchor.pos + endSize;
+                    to = cut.pos + node.nodeSize;
+                    gapStart = cut.pos;
+                    gapEnd = to;
+                    const nodebg = Fragment.from(cut.nodeAfter.copy(newNode));
+                    tr.step(
+                      new ReplaceAroundStep(
+                        from,
+                        to,
+                        gapStart,
+                        gapEnd,
+                        new Slice(nodebg, 2, 0),
+                        0,
+                        true
+                      )
+                    );
+                    currPos = cut.pos;
+                    cut = tr.doc.resolve(cut.pos - 2);
                   }
+                  beforeNode = cut.doc.resolve(cut.pos - 2);
+                  targetNode = beforeNode.node();
+                  newNode = Fragment.from(targetNode.copy());
                   // BlockA
                   // BlockB
                   //    Description
@@ -470,6 +479,11 @@ export const Block = Node.create<IBlock>({
                   // BlockABlockB
                   //    Description
                   //    Blockgroup
+                  from = cut.pos - 2;
+                  const endSize = curr.nodeSize - 2;
+                  to = currPos + endSize + 1;
+                  gapStart = currPos;
+                  gapEnd = currPos + endSize;
                   if (dispatch) {
                     tr.step(
                       new ReplaceAroundStep(
@@ -477,7 +491,7 @@ export const Block = Node.create<IBlock>({
                         to,
                         gapStart,
                         gapEnd,
-                        new Slice(newNode, nodeDepth, 0),
+                        new Slice(newNode, 1, 0),
                         0,
                         true
                       )
