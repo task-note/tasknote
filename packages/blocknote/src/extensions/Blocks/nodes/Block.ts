@@ -9,7 +9,7 @@ import { OrderedListPlugin } from "../OrderedListPlugin";
 import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "../rule";
 import styles from "./Block.module.css";
-import { canSplit } from "prosemirror-transform";
+import { canSplit, ReplaceAroundStep } from "prosemirror-transform";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -40,6 +40,20 @@ declare module "@tiptap/core" {
       setBlockList: (type: ListType) => ReturnType;
     };
   }
+}
+
+function findCutBefore($pos: ResolvedPos): ResolvedPos | null {
+  if (!$pos.parent.type.spec.isolating) {
+    for (let i = $pos.depth - 1; i >= 0; i--) {
+      if ($pos.index(i) > 0) {
+        return $pos.doc.resolve($pos.before(i + 1));
+      }
+      if ($pos.node(i).type.spec.isolating) {
+        break;
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -410,30 +424,67 @@ export const Block = Node.create<IBlock>({
               const anchor = tr.selection.$anchor;
               const curr = anchor.node();
               const node = anchor.node(-1);
-              if (isAtStartOfNode && curr.type.name != "description" && node.type.name === "block") {
-                if (node.childCount === 2) {
-                  // BlockB has children. We want to go from this:
-                  //
+              if (
+                isAtStartOfNode &&
+                curr.type.name !== 'description' &&
+                node.type.name === 'block'
+              ) {
+                if (node.childCount >= 2) {
+                  const cut = findCutBefore(anchor);
+                  const beforeNode = cut.doc.resolve(cut.pos - 2);
+                  const targetNode = beforeNode.node();
+                  let newNode = Fragment.from(targetNode.copy());
+                  // eslint-disable-next-line one-var
+                  let from = 0,
+                    to = 0,
+                    gapStart = 0,
+                    nodeDepth = 1,
+                    gapEnd = 0;
+                  if (targetNode.type.name === 'blockgroup') {
+                    from = cut.pos - 2;
+                    to = cut.pos + node.nodeSize;
+                    gapStart = cut.pos;
+                    gapEnd = to;
+                    newNode = Fragment.from(cut.nodeAfter.copy(newNode));
+                    nodeDepth = 2;
+                    return true;
+                    // BlockA
+                    //    BlockB
+                    // BlockC
+                    // Description
+                    // Becomes
+                    // BlockA
+                    //    BlockBBlockC
+                    //    Description
+                  } else {
+                    from = cut.pos - 2;
+                    const endSize = curr.nodeSize - 2;
+                    to = anchor.pos + endSize + 1;
+                    gapStart = anchor.pos;
+                    gapEnd = anchor.pos + endSize;
+                  }
                   // BlockA
                   // BlockB
-                  //    BlockC
-                  //        BlockD
-                  //
-                  // to:
-                  //
+                  //    Description
+                  //    Blockgroup
+                  // Becomes
                   // BlockABlockB
-                  // BlockC
-                  //     BlockD
-
-                  // This parts moves the children of BlockB to the top level
-                  const startSecondChild = anchor.posAtIndex(1, -1) + 1; // start of blockgroup
-                  const endSecondChild = anchor.posAtIndex(2, -1) - 1;
-                  const range = state.doc
-                    .resolve(startSecondChild)
-                    .blockRange(state.doc.resolve(endSecondChild));
-
+                  //    Description
+                  //    Blockgroup
                   if (dispatch) {
-                    tr.lift(range!, anchor.depth - 2);
+                    tr.step(
+                      new ReplaceAroundStep(
+                        from,
+                        to,
+                        gapStart,
+                        gapEnd,
+                        new Slice(newNode, nodeDepth, 0),
+                        0,
+                        true
+                      )
+                    );
+                    console.log(tr.doc.toJSON());
+                    dispatch(tr.scrollIntoView());
                   }
                 }
                 return true;
