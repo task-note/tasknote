@@ -413,6 +413,105 @@ export const Block = Node.create<IBlock>({
             }
             return false;
           }),
+        () =>
+          commands.command(({ tr, dispatch }) => {
+            const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
+            const anchor = tr.selection.$anchor;
+            const curr = anchor.node();
+            const node = anchor.node(-1);
+            if (
+              isAtStartOfNode &&
+              curr.type.name !== 'description' &&
+              node.type.name === 'block'
+            ) {
+              if (node.childCount >= 2) {
+                let cut = findCutBefore(anchor);
+                let beforeNode = cut.doc.resolve(cut.pos - 2);
+                let targetNode = beforeNode.node();
+                let newNode = Fragment.from(targetNode.copy());
+                // eslint-disable-next-line one-var
+                let from = 0,
+                  to = 0,
+                  currPos = anchor.pos,
+                  gapStart = 0,
+                  gapEnd = 0;
+                if (targetNode.type.name === 'blockgroup') {
+                  // BlockA
+                  //    BlockB
+                  // BlockC
+                  // Description
+                  // Becomes
+                  // BlockA
+                  //    BlockBBlockC
+                  //    Description
+                  let nestDepth = 1;
+                  let nodebg = Fragment.from(cut.nodeAfter.copy(newNode));
+                  // eslint-disable-next-line no-constant-condition
+                  while (true) {
+                    const prePos = cut.doc.resolve(cut.pos - 2 * nestDepth - 2);
+                    if (prePos.node().type.name !== 'blockgroup') {
+                      break;
+                    } else {
+                      nestDepth += 1;
+                      nodebg = Fragment.from(targetNode.copy(nodebg));
+                      nodebg = Fragment.from(cut.nodeAfter.copy(nodebg));
+                    }
+                  }
+                  from = cut.pos - 2 * nestDepth;
+                  to = cut.pos + node.nodeSize;
+                  gapStart = cut.pos;
+                  gapEnd = to;
+                  tr.step(
+                    new ReplaceAroundStep(
+                      from,
+                      to,
+                      gapStart,
+                      gapEnd,
+                      new Slice(nodebg, 2 * nestDepth, 0),
+                      0,
+                      true
+                    )
+                  );
+                  currPos = from + 2;
+                  cut = tr.doc.resolve(currPos - 2);
+                }
+                beforeNode = cut.doc.resolve(cut.pos - 2);
+                targetNode = beforeNode.node();
+                newNode = Fragment.from(targetNode.copy());
+                // BlockA
+                // BlockB
+                //    Description
+                //    Blockgroup
+                // Becomes
+                // BlockABlockB
+                //    Description
+                //    Blockgroup
+                from = cut.pos - 2;
+                const endSize = curr.nodeSize - 2;
+                to = currPos + endSize + 1;
+                gapStart = currPos;
+                gapEnd = currPos + endSize;
+                if (dispatch) {
+                  tr.step(
+                    new ReplaceAroundStep(
+                      from,
+                      to,
+                      gapStart,
+                      gapEnd,
+                      new Slice(newNode, 1, 0),
+                      0,
+                      true
+                    )
+                  );
+                  const trySel = TextSelection.near(tr.doc.resolve(from));
+                  tr.setSelection(trySel);
+                  dispatch(tr.scrollIntoView());
+                }
+                return true;
+              }
+            }
+            return false;
+          }),
         ({ chain }) =>
           // we are at the start of a block at the root level. The user hits backspace to "merge it" to the end of the block above
           //
@@ -424,103 +523,8 @@ export const Block = Node.create<IBlock>({
           // BlockABlockB
 
           chain()
-            .command(({ tr, state, dispatch }) => {
-              const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
-              const anchor = tr.selection.$anchor;
-              const curr = anchor.node();
-              const node = anchor.node(-1);
-              if (
-                isAtStartOfNode &&
-                curr.type.name !== 'description' &&
-                node.type.name === 'block'
-              ) {
-                if (node.childCount >= 2) {
-                  let cut = findCutBefore(anchor);
-                  let beforeNode = cut.doc.resolve(cut.pos - 2);
-                  let targetNode = beforeNode.node();
-                  let newNode = Fragment.from(targetNode.copy());
-                  // eslint-disable-next-line one-var
-                  let from = 0,
-                    to = 0,
-                    currPos = anchor.pos,
-                    gapStart = 0,
-                    gapEnd = 0;
-                  if (targetNode.type.name === 'blockgroup') {
-                    // BlockA
-                    //    BlockB
-                    // BlockC
-                    // Description
-                    // Becomes
-                    // BlockA
-                    //    BlockBBlockC
-                    //    Description
-                    let nestDepth = 1;
-                    let nodebg = Fragment.from(cut.nodeAfter.copy(newNode));
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                      const prePos = cut.doc.resolve(
-                        cut.pos - 2 * nestDepth - 2
-                      );
-                      if (prePos.node().type.name !== 'blockgroup') {
-                        break;
-                      } else {
-                        nestDepth += 1;
-                        nodebg = Fragment.from(targetNode.copy(nodebg));
-                        nodebg = Fragment.from(cut.nodeAfter.copy(nodebg));
-                      }
-                    }
-                    from = cut.pos - 2 * nestDepth;
-                    to = cut.pos + node.nodeSize;
-                    gapStart = cut.pos;
-                    gapEnd = to;
-                    tr.step(
-                      new ReplaceAroundStep(
-                        from,
-                        to,
-                        gapStart,
-                        gapEnd,
-                        new Slice(nodebg, 2 * nestDepth, 0),
-                        0,
-                        true
-                      )
-                    );
-                    currPos = from + 2;
-                    cut = tr.doc.resolve(currPos - 2);
-                  }
-                  beforeNode = cut.doc.resolve(cut.pos - 2);
-                  targetNode = beforeNode.node();
-                  newNode = Fragment.from(targetNode.copy());
-                  // BlockA
-                  // BlockB
-                  //    Description
-                  //    Blockgroup
-                  // Becomes
-                  // BlockABlockB
-                  //    Description
-                  //    Blockgroup
-                  from = cut.pos - 2;
-                  const endSize = curr.nodeSize - 2;
-                  to = currPos + endSize + 1;
-                  gapStart = currPos;
-                  gapEnd = currPos + endSize;
-                  if (dispatch) {
-                    tr.step(
-                      new ReplaceAroundStep(
-                        from,
-                        to,
-                        gapStart,
-                        gapEnd,
-                        new Slice(newNode, 1, 0),
-                        0,
-                        true
-                      )
-                    );
-                    dispatch(tr.scrollIntoView());
-                  }
-                }
-                return true;
-              }
-              return false;
+            .command(() => {
+              return true;
             })
             // use joinBackward to merge BlockB to BlockA (i.e.: turn it into BlockABlockB)
             // The standard JoinBackward would break here, and would turn it into:

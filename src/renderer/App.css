@@ -41,6 +41,7 @@ li {
   display: flex;
   color: #ffffff;
   align-items: center;
+  overflow: scroll;
 }
 
 #HelloInner {
