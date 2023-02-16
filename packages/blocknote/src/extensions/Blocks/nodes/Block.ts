@@ -1,24 +1,25 @@
-import { getNodeType, mergeAttributes, Node } from "@tiptap/core";
-import { Fragment, Slice } from "prosemirror-model";
-import { Selection, TextSelection } from "prosemirror-state";
-import { joinBackward } from "../commands/joinBackward";
-import { findBlock } from "../helpers/findBlock";
-import { setBlockHeading } from "../helpers/setBlockHeading";
-import { getSplittedAttributes } from "../helpers/getSplittedAttributes";
-import { OrderedListPlugin } from "../OrderedListPlugin";
-import { PreviousBlockTypePlugin } from "../PreviousBlockTypePlugin";
-import { textblockTypeInputRuleSameNodeType } from "../rule";
-import styles from "./Block.module.css";
-import { canSplit, ReplaceAroundStep } from "prosemirror-transform";
+import { getNodeType, mergeAttributes, Node } from '@tiptap/core';
+import { Fragment, Slice } from 'prosemirror-model';
+import { Selection, TextSelection } from 'prosemirror-state';
+import { canSplit, ReplaceAroundStep } from 'prosemirror-transform';
+import { joinBackward } from '../commands/joinBackward';
+import { findBlock } from '../helpers/findBlock';
+// eslint-disable-next-line import/no-cycle
+import { setBlockHeading } from '../helpers/setBlockHeading';
+import { getSplittedAttributes } from '../helpers/getSplittedAttributes';
+import { OrderedListPlugin } from '../OrderedListPlugin';
+import { PreviousBlockTypePlugin } from '../PreviousBlockTypePlugin';
+import { textblockTypeInputRuleSameNodeType } from '../rule';
+import styles from './Block.module.css';
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
 export type Level = 1 | 2 | 3;
-export type ListType = "li" | "oli" | "check";
+export type ListType = 'li' | 'oli' | 'check';
 
-declare module "@tiptap/core" {
+declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     blockHeading: {
       /**
@@ -60,8 +61,8 @@ function findCutBefore($pos: ResolvedPos): ResolvedPos | null {
  * The main "Block node" documents consist of
  */
 export const Block = Node.create<IBlock>({
-  name: "block",
-  group: "block",
+  name: 'block',
+  group: 'block',
   addOptions() {
     return {
       HTMLAttributes: {},
@@ -69,7 +70,7 @@ export const Block = Node.create<IBlock>({
   },
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "content description* blockgroup?",
+  content: 'content description* blockgroup?',
 
   defining: true,
 
@@ -79,48 +80,48 @@ export const Block = Node.create<IBlock>({
         default: undefined,
         renderHTML: (attributes) => {
           return {
-            "data-listType": attributes.listType,
+            'data-listType': attributes.listType,
           };
         },
-        parseHTML: (element) => element.getAttribute("data-listType"),
+        parseHTML: (element) => element.getAttribute('data-listType'),
       },
       blockColor: {
         default: undefined,
         renderHTML: (attributes) => {
           return {
-            "data-blockColor": attributes.blockColor,
+            'data-blockColor': attributes.blockColor,
           };
         },
-        parseHTML: (element) => element.getAttribute("data-blockColor"),
+        parseHTML: (element) => element.getAttribute('data-blockColor'),
       },
       blockStyle: {
         default: undefined,
         renderHTML: (attributes) => {
           return {
-            "data-blockStyle": attributes.blockStyle,
+            'data-blockStyle': attributes.blockStyle,
           };
         },
-        parseHTML: (element) => element.getAttribute("data-blockStyle"),
+        parseHTML: (element) => element.getAttribute('data-blockStyle'),
       },
       headingType: {
         default: undefined,
         keepOnSplit: false,
         renderHTML: (attributes) => {
           return {
-            "data-headingType": attributes.headingType,
+            'data-headingType': attributes.headingType,
           };
         },
-        parseHTML: (element) => element.getAttribute("data-headingType"),
+        parseHTML: (element) => element.getAttribute('data-headingType'),
       },
       dataValue: {
         default: false,
         keepOnSplit: false,
         renderHTML: (attributes) => {
           return {
-            "data-value": attributes.dataValue,
+            'data-value': attributes.dataValue,
           };
         },
-        parseHTML: (element) => element.getAttribute("data-value"),
+        parseHTML: (element) => element.getAttribute('data-value'),
       },
     };
   },
@@ -129,19 +130,19 @@ export const Block = Node.create<IBlock>({
   parseHTML() {
     return [
       {
-        tag: "div",
+        tag: 'div',
       },
     ];
   },
 
   renderHTML() {
-    return ["div"];
+    return ['div'];
   },
 
   addNodeView() {
     return ({ HTMLAttributes, getPos, editor }) => {
-      //console.log("-->", HTMLAttributes);
-      const blockItem = document.createElement("div");
+      // console.log("-->", HTMLAttributes);
+      const blockItem = document.createElement('div');
       const outerAttrib = mergeAttributes(
         this.options.HTMLAttributes,
         HTMLAttributes,
@@ -155,7 +156,7 @@ export const Block = Node.create<IBlock>({
         }
       });
 
-      const content = document.createElement("div");
+      const content = document.createElement('div');
       const innerAttrib = mergeAttributes(
         this.options.HTMLAttributes,
         HTMLAttributes,
@@ -169,15 +170,15 @@ export const Block = Node.create<IBlock>({
         }
       });
 
-      if (HTMLAttributes["data-listType"] === "check") {
-        const checkbox = document.createElement("input");
-        checkbox.contentEditable = "false";
-        checkbox.type = "checkbox";
-        if (HTMLAttributes["data-value"] === true) {
-          checkbox.checked = HTMLAttributes["data-value"];
+      if (HTMLAttributes['data-listType'] === 'check') {
+        const checkbox = document.createElement('input');
+        checkbox.contentEditable = 'false';
+        checkbox.type = 'checkbox';
+        if (HTMLAttributes['data-value'] === true) {
+          checkbox.checked = HTMLAttributes['data-value'];
         }
-        checkbox.setAttribute("class", styles.blockCheck);
-        checkbox.addEventListener("change", (event) => {
+        checkbox.setAttribute('class', styles.blockCheck);
+        checkbox.addEventListener('change', (event) => {
           // if the editor isn’t editable and we don't have a handler for
           // readonly checks we have to undo the latest change
           if (!editor.isEditable) {
@@ -188,29 +189,29 @@ export const Block = Node.create<IBlock>({
 
           const { checked } = event.target as any;
 
-          if (editor.isEditable && typeof getPos === "function") {
+          if (editor.isEditable && typeof getPos === 'function') {
             editor
               .chain()
               .focus(undefined, { scrollIntoView: false })
               .command(({ tr }) => {
                 const position = getPos();
                 const currentNode = tr.doc.nodeAt(position);
-                const data_val = {
+                const dataVal = {
                   dataValue: checked,
                 };
 
                 tr.setNodeMarkup(position, undefined, {
                   ...currentNode?.attrs,
-                  ...data_val,
+                  ...dataVal,
                 });
                 if (currentNode) {
                   let firstChildSize = 0;
                   if (currentNode.firstChild) {
                     firstChildSize = currentNode.firstChild?.nodeSize;
                   }
-                  //console.log("-->", firstChildSize);
-                  const mark = editor.schema.mark("strike");
-                  const italic = editor.schema.mark("italic");
+                  // console.log("-->", firstChildSize);
+                  const mark = editor.schema.mark('strike');
+                  const italic = editor.schema.mark('italic');
                   const endPos = position + firstChildSize;
                   if (checked) {
                     tr.addMark(position + 2, endPos, mark);
@@ -254,14 +255,14 @@ export const Block = Node.create<IBlock>({
         find: /^\s*([-+*])\s$/,
         type: this.type,
         getAttributes: {
-          listType: "li",
+          listType: 'li',
         },
       }),
       textblockTypeInputRuleSameNodeType({
         find: new RegExp(/^1.\s/),
         type: this.type,
         getAttributes: {
-          listType: "oli",
+          listType: 'oli',
         },
       }),
       // Create checkbox when starting with "[] "
@@ -269,7 +270,7 @@ export const Block = Node.create<IBlock>({
         find: new RegExp(/^\s*(\[\])\s$/),
         type: this.type,
         getAttributes: {
-          listType: "check",
+          listType: 'check',
         },
       }),
     ];
@@ -294,7 +295,7 @@ export const Block = Node.create<IBlock>({
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
           // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block" && node.attrs["listType"]) {
+          if (node.type.name === 'block' && node.attrs.listType) {
             if (dispatch) {
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
@@ -325,7 +326,7 @@ export const Block = Node.create<IBlock>({
 
           // Create new block after current block
           const endOfBlock = currentBlock.pos + currentBlock.node.nodeSize;
-          let newBlock = state.schema.nodes["block"].createAndFill(attributes)!;
+          const newBlock = state.schema.nodes.block.createAndFill(attributes)!;
           if (dispatch) {
             tr.insert(endOfBlock, newBlock);
             tr.setSelection(new TextSelection(tr.doc.resolve(endOfBlock + 1)));
@@ -339,11 +340,11 @@ export const Block = Node.create<IBlock>({
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
           // const node2 = tr.doc.nodeAt(nodePos);
-          if (node.type.name === "block") {
-            let childNode = node.firstChild;
-            if (type !== "oli" && childNode) {
-              let newAttrs = { ...childNode.attrs };
-              delete newAttrs["position"];
+          if (node.type.name === 'block') {
+            const childNode = node.firstChild;
+            if (type !== 'oli' && childNode) {
+              const newAttrs = { ...childNode.attrs };
+              delete newAttrs.position;
               tr.setNodeMarkup(nodePos + 1, undefined, {
                 ...newAttrs,
               });
@@ -399,11 +400,15 @@ export const Block = Node.create<IBlock>({
             const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
             const curr = tr.selection.$anchor.node();
             const node = tr.selection.$anchor.node(-1);
-            if (isAtStartOfNode && curr.type.name != "description" && node.type.name === "block") {
+            if (
+              isAtStartOfNode &&
+              curr.type.name !== 'description' &&
+              node.type.name === 'block'
+            ) {
               // we're at the start of the block, so we're trying to "backspace" the bullet or indentation
               return commands.first([
                 () => commands.unsetList(), // first try to remove the "list" property
-                () => commands.liftListItem("block"), // then try to remove a level of indentation
+                () => commands.liftListItem('block'), // then try to remove a level of indentation
               ]);
             }
             return false;
@@ -449,24 +454,38 @@ export const Block = Node.create<IBlock>({
                     // BlockA
                     //    BlockBBlockC
                     //    Description
-                    from = cut.pos - 2;
+                    let nestDepth = 1;
+                    let nodebg = Fragment.from(cut.nodeAfter.copy(newNode));
+                    // eslint-disable-next-line no-constant-condition
+                    while (true) {
+                      const prePos = cut.doc.resolve(
+                        cut.pos - 2 * nestDepth - 2
+                      );
+                      if (prePos.node().type.name !== 'blockgroup') {
+                        break;
+                      } else {
+                        nestDepth += 1;
+                        nodebg = Fragment.from(targetNode.copy(nodebg));
+                        nodebg = Fragment.from(cut.nodeAfter.copy(nodebg));
+                      }
+                    }
+                    from = cut.pos - 2 * nestDepth;
                     to = cut.pos + node.nodeSize;
                     gapStart = cut.pos;
                     gapEnd = to;
-                    const nodebg = Fragment.from(cut.nodeAfter.copy(newNode));
                     tr.step(
                       new ReplaceAroundStep(
                         from,
                         to,
                         gapStart,
                         gapEnd,
-                        new Slice(nodebg, 2, 0),
+                        new Slice(nodebg, 2 * nestDepth, 0),
                         0,
                         true
                       )
                     );
-                    currPos = cut.pos;
-                    cut = tr.doc.resolve(cut.pos - 2);
+                    currPos = from + 2;
+                    cut = tr.doc.resolve(currPos - 2);
                   }
                   beforeNode = cut.doc.resolve(cut.pos - 2);
                   targetNode = beforeNode.node();
@@ -496,7 +515,6 @@ export const Block = Node.create<IBlock>({
                         true
                       )
                     );
-                    console.log(tr.doc.toJSON());
                     dispatch(tr.scrollIntoView());
                   }
                 }
@@ -519,7 +537,7 @@ export const Block = Node.create<IBlock>({
     const handleSoftEnter = () =>
       this.editor.commands.first(() => [
         ({ tr, state, dispatch, editor }) => {
-          const type = getNodeType("block", state.schema);
+          const type = getNodeType('block', state.schema);
           const { $from, $to } = state.selection;
           // @ts-ignore
           // eslint-disable-next-line
@@ -571,12 +589,12 @@ export const Block = Node.create<IBlock>({
               }
 
               // eslint-disable-next-line
-              const depthAfter =
-                $from.indexAfter(-1) < $from.node(-2).childCount
-                  ? 1
-                  : $from.indexAfter(-2) < $from.node(-3).childCount
-                  ? 2
-                  : 3;
+              let depthAfter = 3;
+              if ($from.indexAfter(-1) < $from.node(-2).childCount) {
+                depthAfter = 1;
+              } else if ($from.indexAfter(-2) < $from.node(-3).childCount) {
+                depthAfter = 2;
+              }
 
               // Add a second list item with an empty default start node
               const newNextTypeAttributes = getSplittedAttributes(
@@ -624,7 +642,7 @@ export const Block = Node.create<IBlock>({
             return true;
           }
 
-          const nextType = getNodeType("description", state.schema);
+          const nextType = getNodeType('description', state.schema);
 
           const newNextTypeAttributes = getSplittedAttributes(
             extensionAttributes,
@@ -654,14 +672,14 @@ export const Block = Node.create<IBlock>({
     const handleEnter = () =>
       this.editor.commands.first(({ commands }) => [
         // Try to split the current block into 2 items:
-        () => commands.splitListItem("block"),
+        () => commands.splitListItem('block'),
         // Otherwise, maybe we are in an empty list item. "Enter" should remove the list bullet
         ({ tr, state, dispatch, editor }) => {
-          const $from = tr.selection.$from;
+          const { $from } = tr.selection;
           const extensionAttributes = editor.extensionManager.attributes;
           const node = tr.selection.$anchor.node(-1);
           if (node.childCount >= 2) {
-            const nextType = getNodeType("content", state.schema);
+            const nextType = getNodeType('content', state.schema);
             const newNextTypeAttributes = getSplittedAttributes(
               extensionAttributes,
               $from.node().type.name,
@@ -683,7 +701,7 @@ export const Block = Node.create<IBlock>({
           }
           const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
 
-          if (node.type.name === "block" && node.attrs["listType"]) {
+          if (node.type.name === 'block' && node.attrs.listType) {
             if (dispatch) {
               tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
@@ -696,7 +714,7 @@ export const Block = Node.create<IBlock>({
         },
         // Otherwise, we might be on an empty line and hit "Enter" to create a new line:
         ({ tr, dispatch }) => {
-          const $from = tr.selection.$from;
+          const { $from } = tr.selection;
 
           if (dispatch) {
             tr.split($from.pos, 2).scrollIntoView();
@@ -708,20 +726,20 @@ export const Block = Node.create<IBlock>({
     return {
       Backspace: handleBackspace,
       Enter: handleEnter,
-      Tab: () => this.editor.commands.sinkListItem("block"),
-      "Shift-Enter": handleSoftEnter,
-      "Shift-Tab": () => {
-        return this.editor.commands.liftListItem("block");
+      Tab: () => this.editor.commands.sinkListItem('block'),
+      'Shift-Enter': handleSoftEnter,
+      'Shift-Tab': () => {
+        return this.editor.commands.liftListItem('block');
       },
-      "Mod-Alt-0": () =>
+      'Mod-Alt-0': () =>
         this.editor.chain().unsetList().unsetBlockHeading().run(),
-      "Mod-Alt-1": () => this.editor.commands.setBlockHeading({ level: 1 }),
-      "Mod-Alt-2": () => this.editor.commands.setBlockHeading({ level: 2 }),
-      "Mod-Alt-3": () => this.editor.commands.setBlockHeading({ level: 3 }),
-      "Mod--": () => this.editor.commands.setBlockList("li"),
-      "Mod-1": () => this.editor.commands.setBlockList("oli"),
-      "Mod-[": () => this.editor.commands.setBlockList("check"),
-      "Mod-]": () => this.editor.commands.setBlockList("check"),
+      'Mod-Alt-1': () => this.editor.commands.setBlockHeading({ level: 1 }),
+      'Mod-Alt-2': () => this.editor.commands.setBlockHeading({ level: 2 }),
+      'Mod-Alt-3': () => this.editor.commands.setBlockHeading({ level: 3 }),
+      'Mod--': () => this.editor.commands.setBlockList('li'),
+      'Mod-1': () => this.editor.commands.setBlockList('oli'),
+      'Mod-[': () => this.editor.commands.setBlockList('check'),
+      'Mod-]': () => this.editor.commands.setBlockList('check'),
       // TODO: Add shortcuts for numbered and bullet list
     };
   },
