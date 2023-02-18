@@ -1,19 +1,24 @@
-// import logo from './logo.svg'
-import React, { useState } from 'react';
-import { Editor } from '@tiptap/core';
-import { VscFolderOpened, VscSaveAs } from 'react-icons/vsc';
+import { useLocation } from 'react-router-dom';
 import '../../packages/blocknote/src/style.css';
 import styles from './Editor.module.css';
 import { EditorContent, useEditor } from '../../packages/blocknote/src';
+import { writeFile, readFile } from './FileOp';
 
-type WindowWithProseMirror = Window &
-  typeof globalThis & { ProseMirror: Editor };
+let currPath = '';
+let jsonContext = {};
+let loading = true;
 
 function TaskEditor() {
+  const { state } = useLocation();
+  const { id, title } = state; // Read values passed on state
   const usrEditor = useEditor({
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
-      (window as WindowWithProseMirror).ProseMirror = editor; // Give tests a way to get editor instance
+      const content = JSON.stringify(editor.getJSON());
+      if (loading) {
+        console.error('it is still loading, dont overwrite it to null');
+        return;
+      }
+      writeFile(currPath, content);
     },
     editorProps: {
       attributes: {
@@ -23,26 +28,44 @@ function TaskEditor() {
     },
   });
 
-  function onSave() {
-    const content = JSON.stringify(usrEditor?.getJSON());
-    const tools = document.getElementById('title');
-    const title = tools?.innerText;
-    console.log('onSave', title, content);
-  }
-
-  function onOpen() {
-    const test = {
-      type: 'doc',
-      content: [],
-    };
-    usrEditor?.commands.setContent(test);
+  if (usrEditor) {
+    if (id !== currPath) {
+      currPath = id as string;
+      loading = true;
+      readFile(id, (path: string, content: string) => {
+        if (path !== id) {
+          console.error(
+            'logic error, read file mismatch: id=',
+            id,
+            ', path=',
+            path
+          );
+          return;
+        }
+        try {
+          jsonContext = JSON.parse(content);
+        } catch (error) {
+          console.warn(error);
+          jsonContext = {
+            type: 'doc',
+            content: [],
+          };
+        }
+        usrEditor.commands.setContent([jsonContext]);
+        loading = false;
+      });
+    }
   }
 
   return (
     <div id="editor-root">
       <div id="editor-title">
-        <div className="input" contentEditable="true" suppressContentEditableWarning>
-          title
+        <div
+          className="input"
+          contentEditable="true"
+          suppressContentEditableWarning
+        >
+          {title}
         </div>
       </div>
       <EditorContent editor={usrEditor} />

@@ -21,6 +21,8 @@ interface FileTreeState {
   gData: TreeDataType[];
 }
 
+export type OnSelectType = (node: TreeDataType) => void;
+
 function findNode(
   key: string,
   child: TreeDataType[]
@@ -40,11 +42,10 @@ function findNode(
   return result;
 }
 
-export default class FileTree extends Component<
-  Record<string, unknown>,
-  FileTreeState
-> {
+class FileTree extends Component<Record<string, unknown>, FileTreeState> {
   treeRef: React.RefObject<Tree<TreeDataType>>;
+
+  selCallback: OnSelectType | undefined;
 
   constructor(props: Record<string, unknown>) {
     super(props);
@@ -82,6 +83,10 @@ export default class FileTree extends Component<
     console.log('update dimensions', element?.state.selectedKeys);
   };
 
+  setSelectProc = (cb: OnSelectType) => {
+    this.selCallback = cb;
+  };
+
   onSelect = (
     selectedKeys: Key[],
     info: {
@@ -93,6 +98,9 @@ export default class FileTree extends Component<
     }
   ) => {
     console.log('onSelect, selected=', selectedKeys, info);
+    if (this.selCallback && info.selectedNodes.length > 0) {
+      this.selCallback(info.selectedNodes[0]);
+    }
   };
 
   onDrop = (
@@ -201,3 +209,5 @@ export default class FileTree extends Component<
     );
   }
 }
+
+export default FileTree;

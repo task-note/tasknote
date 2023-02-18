@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Header,
   Footer,
@@ -19,6 +20,7 @@ import { makeDir, TreeDataType, makeFile } from './FileOp';
 
 const NaviMenu = () => {
   const fileTreeRef: React.RefObject<FileTree> = useRef(null);
+  const navigate = useNavigate();
 
   const newFolder = () => {
     const fileTree = fileTreeRef.current;
@@ -68,8 +70,20 @@ const NaviMenu = () => {
 
   const foo = () => {
     const element = fileTreeRef.current;
-    console.log('will add it later', element?.getCurrentSelect());
+    navigate('/');
+    // console.log('will add it later', element?.getCurrentSelect());
   };
+
+  const onSelect = (node: TreeDataType) => {
+    if (node.isLeaf) {
+      navigate('/editor', { state: { id: node.key, title: node.title } });
+    }
+  };
+
+  useEffect(() => {
+    const element = fileTreeRef.current;
+    element?.setSelectProc(onSelect);
+  });
 
   return (
     <div className="app-sidebar-content">

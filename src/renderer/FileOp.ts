@@ -1,3 +1,4 @@
+import exp from 'constants';
 import { FieldDataNode } from '../../tree/src/interface';
 
 export type TreeDataType = FieldDataNode<{
@@ -7,6 +8,7 @@ export type TreeDataType = FieldDataNode<{
 }>;
 
 export type LoadFilesCB = (treeData: TreeDataType[], sel: string) => void;
+export type ReadFileCB = (path: string, content: string) => void;
 
 function loadFiles(cb: LoadFilesCB, sel: string) {
   window.electron.ipcRenderer.sendMessage('fs', ['ls', '']);
@@ -37,7 +39,18 @@ function makeFile(path: string, cb: LoadFilesCB) {
 }
 
 function writeFile(path: string, data: string) {
-  console.log('writeFile:', path, data);
+  window.electron.ipcRenderer.sendMessage('fs', ['writefile', path, data]);
 }
 
-export { loadFiles, writeFile, makeDir, makeFile };
+function readFile(path: string, cb: ReadFileCB) {
+  window.electron.ipcRenderer.sendMessage('fs', ['readfile', path]);
+  window.electron.ipcRenderer.once('readfile', (err, content, id) => {
+    if (err) {
+      console.error('readfile result:', err);
+      return;
+    }
+    cb(id as string, content as string);
+  });
+}
+
+export { loadFiles, writeFile, makeDir, makeFile, readFile };

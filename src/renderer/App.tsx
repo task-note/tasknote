@@ -7,18 +7,18 @@ import TaskEditor from './Editor';
 
 export default function App() {
   return (
-    <PageLayout>
-      <Content>
-        <Sidebar />
-        <Main id="Content">
-          <Router>
+    <Router>
+      <PageLayout>
+        <Content>
+          <Sidebar />
+          <Main id="Content">
             <Routes>
-              <Route path="/" element={<TaskEditor />} />
-              <Route path="/editor" element={<Hello />} />
+              <Route path="/editor" element={<TaskEditor />} />
+              <Route path="/" element={<Hello />} />
             </Routes>
-          </Router>
-        </Main>
-      </Content>
-    </PageLayout>
+          </Main>
+        </Content>
+      </PageLayout>
+    </Router>
   );
 }

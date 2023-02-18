@@ -62,6 +62,7 @@ export default async function handleFileCommands(
       event.reply('mkdir', err, path);
     });
   } else if (args[0] === 'writefile') {
+    // log.info('writefile', args[1], args[2]);
     const dstPath = unifyPath(args[1]);
     let content = '';
     if (args.length < 3 || args[2].length === 0) {
@@ -74,8 +75,15 @@ export default async function handleFileCommands(
       content = args[2];
     }
     fs.writeFile(dstPath, content, 'utf-8', (err) => {
-      log.info('<<!>> writefile, path=', err);
+      if (err) {
+        log.info('<<!>> writefile, path=', dstPath, err);
+      }
       event.reply('writefile', err);
+    });
+  } else if (args[0] === 'readfile') {
+    log.info('readfile', args[1]);
+    fs.readFile(unifyPath(args[1]), { encoding: 'utf8' }, (err, data) => {
+      event.reply('readfile', err, data, args[1]);
     });
   }
 }
