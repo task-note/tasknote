@@ -31,7 +31,15 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
-
+ipcMain.on('log', async (event, arg) => {
+  console.log(arg);
+});
+ipcMain.on('warn', async (event, arg) => {
+  console.warn(arg);
+});
+ipcMain.on('error', async (event, arg) => {
+  console.error(arg);
+});
 ipcMain.on('fs', handleFileCommands);
 
 if (process.env.NODE_ENV === 'production') {
@@ -63,7 +71,7 @@ const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
   }
-
+  log.initialize({ preload: true });
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');
