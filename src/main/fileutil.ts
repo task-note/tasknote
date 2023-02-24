@@ -1,8 +1,10 @@
 /* eslint-disable no-plusplus */
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import * as fs from 'fs';
 import log from 'electron-log';
 import { TreeDataType } from '../renderer/FileOp';
+
+const pathlib = require('path');
 
 function baseDir() {
   return `${app.getPath('userData')}/notes`;
@@ -85,5 +87,17 @@ export default async function handleFileCommands(
     fs.readFile(unifyPath(args[1]), { encoding: 'utf8' }, (err, data) => {
       event.reply('readfile', err, data, args[1]);
     });
+  } else if (args[0] === 'trash') {
+    const parent = pathlib.dirname(args[1]);
+    log.info('trash file:', args[1], ', parent=', parent);
+    shell
+      .trashItem(args[1])
+      .then(() => {
+        event.reply('trash', 'ok', parent);
+        return true;
+      })
+      .catch(() => {
+        event.reply('trash', 'fail');
+      });
   }
 }

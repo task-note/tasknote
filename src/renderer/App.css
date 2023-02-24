@@ -97,3 +97,10 @@ li {
   --padding-x: 6px;
   padding: 3px var(--padding-x);
 }
+
+#rightmenu button {
+    min-height: var(--ds-scale-500, 20px);
+    margin: var(--ds-scale-0, 0px);
+    padding: var(--ds-scale-100, 4px) var(--ds-scale-250, 10px);
+    font-size: 13px;
+}

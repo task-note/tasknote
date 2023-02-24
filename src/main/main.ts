@@ -71,7 +71,6 @@ const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
   }
-  log.initialize({ preload: true });
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');

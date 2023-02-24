@@ -3,10 +3,10 @@ import {
   isNodeSelection,
   isTextSelection,
   posToDOMRect,
-} from "@tiptap/core";
-import { EditorState, Plugin, PluginKey } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
-import tippy, { Instance, Props } from "tippy.js";
+} from '@tiptap/core';
+import { EditorState, Plugin, PluginKey } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+import tippy, { Instance, Props } from 'tippy.js';
 
 // Same as TipTap bubblemenu plugin, but with these changes:
 // https://github.com/ueberdosis/tiptap/pull/2596/files

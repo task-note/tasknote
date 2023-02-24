@@ -33,6 +33,11 @@ function TaskEditor() {
     },
   });
 
+  const onContextMenu = (e) => {
+    log('editor right click');
+    e.preventDefault();
+  };
+
   if (usrEditor) {
     if (id !== currPath) {
       currPath = id as string;
@@ -58,7 +63,7 @@ function TaskEditor() {
   }
 
   if (titleInputRef.current) {
-    titleInputRef.current.addEventListener('focusout', (event) => {
+    titleInputRef.current.addEventListener('blur', (event) => {
       event.preventDefault();
       if (titleInputRef.current?.innerText !== currentTitle) {
         log('input focus out', titleInputRef.current?.innerText);
@@ -79,7 +84,7 @@ function TaskEditor() {
           {title}
         </div>
       </div>
-      <EditorContent editor={usrEditor} />
+      <EditorContent editor={usrEditor} onContextMenu={onContextMenu} />
     </div>
   );
 }

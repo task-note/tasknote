@@ -53,4 +53,16 @@ function readFile(path: string, cb: ReadFileCB) {
   });
 }
 
-export { loadFiles, writeFile, makeDir, makeFile, readFile };
+function trashItem(path: string, cb: LoadFilesCB) {
+  log('trash item, folder is:', path);
+  window.electron.ipcRenderer.sendMessage('fs', ['trash', path]);
+  window.electron.ipcRenderer.once('trash', (msg, parent) => {
+    if (msg !== 'ok') {
+      error('falied to trash file:', path);
+      return;
+    }
+    loadFiles(cb, parent);
+  });
+}
+
+export { loadFiles, writeFile, makeDir, makeFile, readFile, trashItem };

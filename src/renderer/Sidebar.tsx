@@ -120,7 +120,7 @@ const NaviMenu = () => {
         <NavigationContent>
           <FileTree ref={fileTreeRef} />
         </NavigationContent>
-        <NavigationFooter>
+        {/* <NavigationFooter>
           <Footer
             iconBefore={<MainIcon />}
             description={
@@ -132,7 +132,7 @@ const NaviMenu = () => {
           >
             Organize Your Project Like this!
           </Footer>
-        </NavigationFooter>
+        </NavigationFooter> */}
       </div>
     </div>
   );
