@@ -105,3 +105,8 @@ li {
     padding: var(--ds-scale-100, 4px) var(--ds-scale-250, 10px);
     font-size: 13px;
 }
+
+.tippy-box[data-theme~=error] {
+  color: crimson;
+  font-weight:400
+}

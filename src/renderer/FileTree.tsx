@@ -12,6 +12,7 @@ import { EventDataNode, Key } from '../../tree/src/interface';
 import { TreeDataType, loadFiles, trashItem } from './FileOp';
 import { log } from './Logger';
 import showMessageBox from './messageBox';
+import showInputDialog from './InputDialog';
 
 const STYLE = `
 .rc-tree-child-tree {
@@ -34,20 +35,19 @@ export type OnSelectType = (node: TreeDataType) => void;
 function findNode(
   key: string,
   child: TreeDataType[]
-): TreeDataType | undefined {
-  let result;
+): [TreeDataType | undefined, TreeDataType[]] {
   for (let index = 0; index < child.length; index += 1) {
     if (child[index].key === key) {
-      return child[index];
+      return [child[index], child];
     }
     if (child[index].children) {
-      result = findNode(key, child[index].children as TreeDataType[]);
-      if (result) {
+      const result = findNode(key, child[index].children as TreeDataType[]);
+      if (result[0]) {
         return result;
       }
     }
   }
-  return result;
+  return [undefined, []];
 }
 
 interface FileTreeProps {
@@ -82,11 +82,51 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
 
   getNodeByKey(key: string) {
     const { gData } = this.state;
-    return findNode(key, gData);
+    const [node] = findNode(key, gData);
+    return node;
   }
 
   setSelectProc = (cb: OnSelectType) => {
     this.selCallback = cb;
+  };
+
+  nameValidator = (
+    siblings: TreeDataType[],
+    curr: TreeDataType,
+    val: string
+  ): boolean => {
+    for (let i = 0; i < siblings.length; i += 1) {
+      if (siblings[i].key !== curr.key && siblings[i].title === val) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  onRename = () => {
+    this.contextMenu?.hide();
+    const currSel = this.getCurrentSelect();
+    if (!currSel || currSel.length <= 0) {
+      return;
+    }
+    const selFilePath = currSel[0].toString();
+    const { gData } = this.state;
+    const [selNode, siblings] = findNode(selFilePath, gData);
+    if (!selNode) {
+      return;
+    }
+    const type = selNode?.isLeaf ? 'note' : 'folder';
+    log('rename current=', selFilePath, selNode?.title);
+    showInputDialog(
+      `Rename Project ${type}`,
+      'Please input your new name:',
+      (val: string) => {
+        log('-->', val);
+      },
+      selNode.title,
+      this.nameValidator.bind(this, siblings, selNode),
+      'Rename'
+    );
   };
 
   onDelete = () => {
@@ -159,7 +199,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
           <MenuGroup>
             <Section>
               <ButtonItem onClick={this.onDelete}>Delete</ButtonItem>
-              <ButtonItem>Create project</ButtonItem>
+              <ButtonItem onClick={this.onRename}>Rename</ButtonItem>
             </Section>
           </MenuGroup>
         </div>,

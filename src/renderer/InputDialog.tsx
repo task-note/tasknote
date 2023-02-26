@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { cx, css } from '@emotion/css';
 import ReactDOM from 'react-dom';
 import Button from '@atlaskit/button/standard-button';
@@ -14,14 +14,30 @@ import Modal, {
 import CrossIcon from '@atlaskit/icon/glyph/cross';
 import { N500 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
+import tippy from 'tippy.js';
+import { warn } from './Logger';
 
-let openModal: () => void;
 export type InputCallback = (val: string) => void;
-let inputCallbackFunc: InputCallback;
-let dialogTitle = 'Input Dialog';
-let inputTips = 'Please input names:';
+export type ValidatorFunc = (val: string) => boolean;
+let openModal: () => void;
 
-function InputDialog() {
+interface InputDialogProp {
+  title: string;
+  tips: string;
+  defaultVal: string;
+  validator: ValidatorFunc | undefined;
+  callback: InputCallback;
+  okName: string;
+}
+
+function InputDialog({
+  title,
+  tips,
+  defaultVal,
+  validator,
+  callback,
+  okName,
+}: InputDialogProp) {
   const [isOpen, setIsOpen] = useState(false);
 
   openModal = useCallback(() => setIsOpen(true), []);
@@ -34,11 +50,31 @@ function InputDialog() {
       data.forEach((val, key) => {
         obj[key] = val;
       });
+      const newName = obj.name as string;
+      if (validator) {
+        if (!validator(newName)) {
+          warn('validate name failed, show error tippy!');
+          const inputEle = document.querySelector('#name') as HTMLInputElement;
+          const errTip = tippy(inputEle, {
+            content: 'The name has been used, cannot rename to it!',
+            animation: 'scale',
+            placement: 'bottom-start',
+            trigger: 'manual',
+            theme: 'error',
+            interactive: true,
+          });
+          errTip.show();
+          if (inputEle) {
+            inputEle.focus();
+          }
+          return;
+        }
+      }
 
-      inputCallbackFunc(obj.name as string);
+      callback(obj.name as string);
       closeModal();
     },
-    [closeModal]
+    [closeModal, callback, validator]
   );
 
   const headerStyles = css({
@@ -55,7 +91,7 @@ function InputDialog() {
     return (
       <div className={cx(headerStyles)}>
         <h1 className={cx(headingStyles)} id={titleId}>
-          {dialogTitle}
+          {title}
         </h1>
         <Button appearance="link" onClick={onClose}>
           <CrossIcon
@@ -75,10 +111,14 @@ function InputDialog() {
           <CustomHeader />
           <form onSubmit={onSubmit}>
             <ModalBody>
-              <Field id="name" name="name" label={inputTips}>
+              <Field id="name" name="name" label={tips}>
                 {({ fieldProps }) => (
                   <>
-                    <Textfield {...fieldProps} ref={focusRef} />
+                    <Textfield
+                      {...fieldProps}
+                      defaultValue={defaultVal}
+                      ref={focusRef}
+                    />
                   </>
                 )}
               </Field>
@@ -88,7 +128,7 @@ function InputDialog() {
                 Close
               </Button>
               <Button appearance="primary" type="submit">
-                Create
+                {okName}
               </Button>
             </ModalFooter>
           </form>
@@ -98,14 +138,29 @@ function InputDialog() {
   );
 }
 
-function showInputDialog(title: string, tips: string, cb: InputCallback) {
-  inputCallbackFunc = cb;
-  dialogTitle = title;
-  inputTips = tips;
+function showInputDialog(
+  title: string,
+  tips: string,
+  cb: InputCallback,
+  defaultVal = '',
+  validator: ValidatorFunc | undefined = undefined,
+  okName = 'Create'
+) {
   const fakeRenderTarget = document.getElementById('fake-container');
-  ReactDOM.render(<InputDialog />, fakeRenderTarget, () => {
-    openModal();
-  });
+  ReactDOM.render(
+    <InputDialog
+      title={title}
+      tips={tips}
+      callback={cb}
+      defaultVal={defaultVal}
+      validator={validator}
+      okName={okName}
+    />,
+    fakeRenderTarget,
+    () => {
+      openModal();
+    }
+  );
 }
 
 export default showInputDialog;

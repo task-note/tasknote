@@ -32,8 +32,8 @@ const NaviMenu = () => {
       prefix = currSel[0] as string;
     }
     showInputDialog(
-      'Create New Folder',
-      'Please input the folder name:',
+      'Create New Project Folder',
+      'Please input the project folder name:',
       (val: string) => {
         makeDir(
           `${prefix}/${encodeURIComponent(val)}`,
@@ -58,8 +58,8 @@ const NaviMenu = () => {
       }
     }
     showInputDialog(
-      'Create New File',
-      'Please input the file name:',
+      'Create New Note',
+      'Please input the project note name:',
       (val: string) => {
         makeFile(
           `${prefix}/${encodeURIComponent(val)}`,
