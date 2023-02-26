@@ -17,7 +17,9 @@ import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
 import showInputDialog from './InputDialog';
 import { makeDir, TreeDataType, makeFile } from './FileOp';
+import { log } from './Logger';
 
+let currSideWidth = 250;
 const NaviMenu = () => {
   const fileTreeRef: React.RefObject<FileTree> = useRef(null);
   const navigate = useNavigate();
@@ -33,11 +35,14 @@ const NaviMenu = () => {
       'Create New Folder',
       'Please input the folder name:',
       (val: string) => {
-        makeDir(`${prefix}/${val}`, (treeData: TreeDataType[], sel: string) => {
-          fileTree?.setState({
-            gData: treeData,
-          });
-        });
+        makeDir(
+          `${prefix}/${encodeURIComponent(val)}`,
+          (treeData: TreeDataType[], sel: string) => {
+            fileTree?.setState({
+              gData: treeData,
+            });
+          }
+        );
       }
     );
   };
@@ -57,7 +62,7 @@ const NaviMenu = () => {
       'Please input the file name:',
       (val: string) => {
         makeFile(
-          `${prefix}/${val}`,
+          `${prefix}/${encodeURIComponent(val)}`,
           (treeData: TreeDataType[], sel: string) => {
             fileTree?.setState({
               gData: treeData,
@@ -69,8 +74,8 @@ const NaviMenu = () => {
   };
 
   const foo = () => {
-    const element = fileTreeRef.current;
     navigate('/');
+    // const element = fileTreeRef.current;
     // console.log('will add it later', element?.getCurrentSelect());
   };
 
@@ -118,7 +123,7 @@ const NaviMenu = () => {
           </Section>
         </NavigationHeader>
         <NavigationContent>
-          <FileTree ref={fileTreeRef} />
+          <FileTree ref={fileTreeRef} width={currSideWidth} />
         </NavigationContent>
         {/* <NavigationFooter>
           <Footer
@@ -141,7 +146,7 @@ const NaviMenu = () => {
 export default function Sidebar() {
   const sidebarRef: React.RefObject<HTMLDivElement> = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(250);
+  const [sidebarWidth, setSidebarWidth] = useState(currSideWidth);
 
   const startResizing = React.useCallback(() => {
     setIsResizing(true);
@@ -160,6 +165,9 @@ export default function Sidebar() {
         const targetWidth =
           mouseMoveEvent.clientX - element.getBoundingClientRect().left;
         setSidebarWidth(targetWidth);
+        if (targetWidth < 350) {
+          currSideWidth = targetWidth > 210 ? targetWidth : 210;
+        }
       }
     },
     [isResizing]

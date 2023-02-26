@@ -18,6 +18,13 @@ function unifyPath(path: string) {
   return dstPath;
 }
 
+function shortString(str: string, limit = 20) {
+  if (str.length < limit) {
+    return str;
+  }
+  return `${str.substring(0, limit)} ...`;
+}
+
 async function buildFileTree(event: Electron.IpcMainEvent, path: string) {
   const lsPath = `${baseDir()}/${path}`;
   function listFolder(subPath: string, data: TreeDataType[]) {
@@ -26,16 +33,17 @@ async function buildFileTree(event: Electron.IpcMainEvent, path: string) {
       const file = allfiles[index];
       // log.info(file);
       const filePath = `${subPath}/${file.name}`;
+      const unescapedName = decodeURIComponent(file.name);
       if (file.isFile()) {
         data.push({
           key: filePath,
-          title: file.name,
+          title: unescapedName,
           isLeaf: true,
         });
       } else {
         const folder = {
           key: filePath,
-          title: file.name,
+          title: unescapedName,
           isLeaf: false,
           children: [],
         };

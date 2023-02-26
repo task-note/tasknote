@@ -50,14 +50,18 @@ function findNode(
   return result;
 }
 
-class FileTree extends Component<Record<string, unknown>, FileTreeState> {
+interface FileTreeProps {
+  width: number;
+}
+
+class FileTree extends Component<FileTreeProps, FileTreeState> {
   treeRef: React.RefObject<Tree<TreeDataType>>;
 
   selCallback: OnSelectType | undefined;
 
   contextMenu: Instance | undefined;
 
-  constructor(props: Record<string, unknown>) {
+  constructor(props: FileTreeProps) {
     super(props);
     this.state = {
       gData: [],
@@ -71,14 +75,6 @@ class FileTree extends Component<Record<string, unknown>, FileTreeState> {
     }, '');
   }
 
-  componentDidMount() {
-    window.addEventListener('resize', this.updateDimensions);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.updateDimensions);
-  }
-
   getCurrentSelect() {
     const element = this.treeRef.current;
     return element?.state.selectedKeys;
@@ -88,11 +84,6 @@ class FileTree extends Component<Record<string, unknown>, FileTreeState> {
     const { gData } = this.state;
     return findNode(key, gData);
   }
-
-  updateDimensions = () => {
-    const element = this.treeRef.current;
-    console.log('update dimensions', element?.state.selectedKeys);
-  };
 
   setSelectProc = (cb: OnSelectType) => {
     this.selCallback = cb;
@@ -106,9 +97,10 @@ class FileTree extends Component<Record<string, unknown>, FileTreeState> {
     const selFilePath = currSel[0].toString();
     const selNode = this.getNodeByKey(selFilePath);
     this.contextMenu?.hide();
+    const type = selNode?.isLeaf ? 'note' : 'folder';
     showMessageBox(
       'Delete Project Notes',
-      `Do you want to delete the project notes "${selNode?.title}" ?`,
+      `Do you want to delete the project ${type} "${selNode?.title}" ?`,
       (val) => {
         log('onDelete', val, selFilePath);
         if (val) {
@@ -271,11 +263,13 @@ class FileTree extends Component<Record<string, unknown>, FileTreeState> {
 
   render() {
     const { gData, selectedKeys } = this.state;
+    const { width } = this.props;
+    const sideWidth = width - 35;
     return (
       <div className="filetree" id="filetree">
         <span className="filetree_title">Folders</span>
         <style dangerouslySetInnerHTML={{ __html: STYLE }} />
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', width: sideWidth, overflow: 'hidden' }}>
           <div style={{ flex: '1 1 50%' }}>
             <Tree<TreeDataType>
               ref={this.treeRef}

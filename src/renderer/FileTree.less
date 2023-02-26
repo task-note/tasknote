@@ -23,7 +23,7 @@
   .@{treeNodePrefixCls} {
     margin: 0;
     padding: 0;
-    line-height: 24px;
+    line-height: 28px;
     white-space: nowrap;
     list-style: none;
     outline: 0;
@@ -81,6 +81,7 @@
       text-decoration: none;
       vertical-align: top;
       cursor: pointer;
+      width: 100%;
     }
     span {
       &.@{treePrefixCls}-switcher,
@@ -202,14 +203,20 @@
     //   background: rgba(0, 0, 0, 0.1);
     // }
   }
+  &-treenode:hover {
+    background-color: #EBECF0;
+    border: 0;
+    // box-shadow: 0 0 0 1px #b9b9b9;
+    opacity: 0.8;
+  }
   &-treenode-selected {
-    background-color: #c9c9c9;
-    box-shadow: 0 0 0 1px #b9b9b9;
+    background-color: #DEEBFF;
+    // box-shadow: 0 0 0 1px #b9b9b9;
     opacity: 0.8;
   }
   &-node-selected {
-    background-color: #c9c9c9;
-    box-shadow: 0 0 0 1px #c9c9c9;
+    // background-color: #c9c9c9;
+    // box-shadow: 0 0 0 1px #c9c9c9;
     opacity: 0.8;
   }
   &-icon__open {
@@ -234,6 +241,7 @@
   }
   &-title {
     display: inline-block;
+    width:100%;
   }
   &-indent {
     display: inline-block;

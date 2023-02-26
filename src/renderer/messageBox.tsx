@@ -55,8 +55,9 @@ function showMessageBox(title: string, tips: string, cb: InputCallback) {
   dialogTitle = title;
   dialogMsg = tips;
   const fakeRenderTarget = document.getElementById('fake-container');
-  ReactDOM.render(<MessageBox />, fakeRenderTarget);
-  openMessageBox();
+  ReactDOM.render(<MessageBox />, fakeRenderTarget, () => {
+    openMessageBox();
+  });
 }
 
 export default showMessageBox;

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../../packages/blocknote/src/style.css';
 import styles from './Editor.module.css';
@@ -12,7 +12,6 @@ let loading = true;
 let currentTitle: string | null | undefined = '';
 
 function TaskEditor() {
-  const titleInputRef: React.RefObject<HTMLDivElement> = useRef(null);
   const { state } = useLocation();
   const { id, title } = state; // Read values passed on state
   currentTitle = title;
@@ -38,6 +37,8 @@ function TaskEditor() {
     e.preventDefault();
   };
 
+  const [titleEdited, setTitleString] = useState<string>(title);
+
   if (usrEditor) {
     if (id !== currPath) {
       currPath = id as string;
@@ -58,31 +59,27 @@ function TaskEditor() {
         }
         usrEditor.commands.setContent([jsonContext]);
         loading = false;
+        setTitleString(title);
       });
     }
   }
 
-  if (titleInputRef.current) {
-    titleInputRef.current.addEventListener('blur', (event) => {
-      event.preventDefault();
-      if (titleInputRef.current?.innerText !== currentTitle) {
-        log('input focus out', titleInputRef.current?.innerText);
-        currentTitle = titleInputRef.current?.innerText;
-      }
-    });
-  }
+  const onInputBlur = () => {
+    if (titleEdited !== currentTitle) {
+      log('input focus out', titleEdited);
+      currentTitle = titleEdited;
+    }
+  };
 
   return (
     <div id="editor-root">
       <div id="editor-title">
-        <div
-          className="input"
-          contentEditable="true"
-          ref={titleInputRef}
-          suppressContentEditableWarning
-        >
-          {title}
-        </div>
+        <input
+          type="text"
+          value={titleEdited}
+          onBlur={onInputBlur}
+          onChange={(e) => setTitleString(e.target.value)}
+        />
       </div>
       <EditorContent editor={usrEditor} onContextMenu={onContextMenu} />
     </div>

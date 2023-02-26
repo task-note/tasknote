@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { cx, css } from '@emotion/css';
 import ReactDOM from 'react-dom';
 import Button from '@atlaskit/button/standard-button';
@@ -103,8 +103,9 @@ function showInputDialog(title: string, tips: string, cb: InputCallback) {
   dialogTitle = title;
   inputTips = tips;
   const fakeRenderTarget = document.getElementById('fake-container');
-  ReactDOM.render(<InputDialog />, fakeRenderTarget);
-  openModal();
+  ReactDOM.render(<InputDialog />, fakeRenderTarget, () => {
+    openModal();
+  });
 }
 
 export default showInputDialog;

@@ -61,7 +61,7 @@ function trashItem(path: string, cb: LoadFilesCB) {
       error('falied to trash file:', path);
       return;
     }
-    loadFiles(cb, parent);
+    loadFiles(cb, parent as string);
   });
 }
 

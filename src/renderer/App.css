@@ -86,10 +86,11 @@ li {
   border-bottom: #e0e0e0 1px solid;
 }
 
-#editor-title .input {
+#editor-title input {
   width: calc(100% - 160px);
   line-height: 24px;
   height: 30px;
+  border: 0;
   display: inline-flex;
   align-items: center;
   font-size: x-large;
