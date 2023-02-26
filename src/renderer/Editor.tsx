@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Editor } from '@tiptap/core';
 import '../../packages/blocknote/src/style.css';
 import styles from './Editor.module.css';
 import { EditorContent, useEditor } from '../../packages/blocknote/src';
@@ -7,22 +8,27 @@ import { writeFile, readFile } from './FileOp';
 import { log, warn, error } from './Logger';
 
 let currPath = '';
-let jsonContext = {};
+let jsonContext;
 let loading = true;
 let currentTitle: string | null | undefined = '';
+
+function saveContentAndTitle(editor: Editor) {
+  const jsonContent = editor.getJSON();
+  jsonContent.title = currentTitle;
+  const content = JSON.stringify(jsonContent);
+  if (loading) {
+    warn('it is still loading, dont overwrite it to null');
+    return;
+  }
+  writeFile(currPath, content);
+}
 
 function TaskEditor() {
   const { state } = useLocation();
   const { id, title } = state; // Read values passed on state
-  currentTitle = title;
   const usrEditor = useEditor({
     onUpdate: ({ editor }) => {
-      const content = JSON.stringify(editor.getJSON());
-      if (loading) {
-        warn('it is still loading, dont overwrite it to null');
-        return;
-      }
-      writeFile(currPath, content);
+      saveContentAndTitle(editor);
     },
     editorProps: {
       attributes: {
@@ -32,9 +38,8 @@ function TaskEditor() {
     },
   });
 
-  const onContextMenu = (e) => {
+  const onContextMenu = () => {
     log('editor right click');
-    e.preventDefault();
   };
 
   const [titleEdited, setTitleString] = useState<string>(title);
@@ -58,16 +63,27 @@ function TaskEditor() {
           };
         }
         usrEditor.commands.setContent([jsonContext]);
+        const titleStr = Object.prototype.hasOwnProperty.call(
+          jsonContext,
+          'title'
+        )
+          ? jsonContext.title
+          : title;
+        setTitleString(titleStr);
         loading = false;
-        setTitleString(title);
       });
     }
   }
 
   const onInputBlur = () => {
+    if (loading || usrEditor === null) {
+      warn('Editing title when it is loading, will update later...');
+      return;
+    }
     if (titleEdited !== currentTitle) {
       log('input focus out', titleEdited);
       currentTitle = titleEdited;
+      saveContentAndTitle(usrEditor);
     }
   };
 
