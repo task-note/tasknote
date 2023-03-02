@@ -65,4 +65,25 @@ function trashItem(path: string, cb: LoadFilesCB) {
   });
 }
 
-export { loadFiles, writeFile, makeDir, makeFile, readFile, trashItem };
+function nameValidator(
+  siblings: TreeDataType[],
+  curr: TreeDataType | undefined,
+  val: string
+): boolean {
+  for (let i = 0; i < siblings.length; i += 1) {
+    if ((!curr || siblings[i].key !== curr.key) && siblings[i].title === val) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export {
+  loadFiles,
+  writeFile,
+  makeDir,
+  makeFile,
+  readFile,
+  trashItem,
+  nameValidator,
+};

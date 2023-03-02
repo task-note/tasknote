@@ -9,7 +9,7 @@ import Tree from '../../tree/src/Tree';
 import './FileTree.less';
 import { NodeDragEventParams } from '../../tree/src/contextTypes';
 import { EventDataNode, Key } from '../../tree/src/interface';
-import { TreeDataType, loadFiles, trashItem } from './FileOp';
+import { TreeDataType, loadFiles, trashItem, nameValidator } from './FileOp';
 import { log } from './Logger';
 import showMessageBox from './messageBox';
 import showInputDialog from './InputDialog';
@@ -52,12 +52,11 @@ function findNode(
 
 interface FileTreeProps {
   width: number;
+  selCallback: OnSelectType | undefined;
 }
 
 class FileTree extends Component<FileTreeProps, FileTreeState> {
   treeRef: React.RefObject<Tree<TreeDataType>>;
-
-  selCallback: OnSelectType | undefined;
 
   contextMenu: Instance | undefined;
 
@@ -86,22 +85,18 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     return node;
   }
 
-  setSelectProc = (cb: OnSelectType) => {
-    this.selCallback = cb;
-  };
-
-  nameValidator = (
-    siblings: TreeDataType[],
-    curr: TreeDataType,
-    val: string
-  ): boolean => {
-    for (let i = 0; i < siblings.length; i += 1) {
-      if (siblings[i].key !== curr.key && siblings[i].title === val) {
-        return false;
+  getValidator(key: string | undefined) {
+    if (key) {
+      const { gData } = this.state;
+      const [selNode, siblings] = findNode(key, gData);
+      if (selNode) {
+        return nameValidator.bind(this, siblings, undefined);
       }
     }
-    return true;
-  };
+    return () => {
+      return true;
+    };
+  }
 
   onRename = () => {
     this.contextMenu?.hide();
@@ -124,7 +119,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
         log('-->', val);
       },
       selNode.title,
-      this.nameValidator.bind(this, siblings, selNode),
+      nameValidator.bind(this, siblings, selNode),
       'Rename'
     );
   };
@@ -164,10 +159,11 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       nativeEvent: MouseEvent;
     }
   ) => {
+    const { selCallback } = this.props;
     console.log('onSelect, selected=', keys, info);
     this.setState({ selectedKeys: keys });
-    if (this.selCallback && info.selectedNodes.length > 0) {
-      this.selCallback(info.selectedNodes[0]);
+    if (selCallback && info.selectedNodes.length > 0) {
+      selCallback(info.selectedNodes[0]);
     }
   };
 

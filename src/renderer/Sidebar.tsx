@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Header,
@@ -17,7 +17,6 @@ import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
 import showInputDialog from './InputDialog';
 import { makeDir, TreeDataType, makeFile } from './FileOp';
-import { log } from './Logger';
 
 let currSideWidth = 250;
 const NaviMenu = () => {
@@ -28,8 +27,10 @@ const NaviMenu = () => {
     const fileTree = fileTreeRef.current;
     const currSel = fileTree?.getCurrentSelect();
     let prefix = '.';
+    let target = prefix;
     if (currSel && currSel.length > 0) {
-      prefix = currSel[0] as string;
+      target = currSel[0] as string;
+      prefix = target.substring(0, target.lastIndexOf('/'));
     }
     showInputDialog(
       'Create New Project Folder',
@@ -43,7 +44,9 @@ const NaviMenu = () => {
             });
           }
         );
-      }
+      },
+      '',
+      fileTree?.getValidator(target)
     );
   };
 
@@ -51,10 +54,17 @@ const NaviMenu = () => {
     const fileTree = fileTreeRef.current;
     const currSel = fileTree?.getCurrentSelect();
     let prefix = '.';
+    let target;
     if (currSel && currSel.length > 0) {
       prefix = currSel[0] as string;
-      if (fileTree?.getNodeByKey(prefix)?.isLeaf) {
+      const selNode = fileTree?.getNodeByKey(prefix);
+      if (selNode?.isLeaf) {
+        target = prefix;
         prefix = prefix.substring(0, prefix.lastIndexOf('/'));
+      } else if (selNode?.children) {
+        if (selNode?.children.length > 0) {
+          target = selNode?.children[0].key;
+        }
       }
     }
     showInputDialog(
@@ -69,7 +79,9 @@ const NaviMenu = () => {
             });
           }
         );
-      }
+      },
+      '',
+      fileTree?.getValidator(target)
     );
   };
 
@@ -84,11 +96,6 @@ const NaviMenu = () => {
       navigate('/editor', { state: { id: node.key, title: node.title } });
     }
   };
-
-  useEffect(() => {
-    const element = fileTreeRef.current;
-    element?.setSelectProc(onSelect);
-  });
 
   return (
     <div className="app-sidebar-content">
@@ -123,11 +130,15 @@ const NaviMenu = () => {
           </Section>
         </NavigationHeader>
         <NavigationContent>
-          <FileTree ref={fileTreeRef} width={currSideWidth} />
+          <FileTree
+            ref={fileTreeRef}
+            width={currSideWidth}
+            selCallback={onSelect}
+          />
         </NavigationContent>
-        {/* <NavigationFooter>
+        <NavigationFooter>
           <Footer
-            iconBefore={<MainIcon />}
+            // iconBefore={<MainIcon />}
             description={
               <div>
                 <a onClick={foo}>Give feedback</a> {' ∙ '}
@@ -137,7 +148,7 @@ const NaviMenu = () => {
           >
             Organize Your Project Like this!
           </Footer>
-        </NavigationFooter> */}
+        </NavigationFooter>
       </div>
     </div>
   );

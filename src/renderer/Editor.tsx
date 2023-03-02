@@ -69,6 +69,7 @@ function TaskEditor() {
         )
           ? jsonContext.title
           : title;
+        currentTitle = titleStr;
         setTitleString(titleStr);
         loading = false;
       });
