@@ -107,5 +107,12 @@ export default async function handleFileCommands(
       .catch(() => {
         event.reply('trash', 'fail');
       });
+  } else if (args[0] === 'rename') {
+    const parentPath = pathlib.dirname(args[1]);
+    const fileNameNew = `${parentPath}/${args[2]}`;
+    log.info('rename file:', args[1], ', to:', fileNameNew);
+    fs.rename(args[1], fileNameNew, (err) => {
+      event.reply('rename', err, fileNameNew);
+    });
   }
 }

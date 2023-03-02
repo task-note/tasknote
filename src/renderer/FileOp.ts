@@ -65,6 +65,20 @@ function trashItem(path: string, cb: LoadFilesCB) {
   });
 }
 
+function renameItem(path: string, newName: string, cb: LoadFilesCB) {
+  log('rename item, rename folder:', path, ' to ', newName);
+  window.electron.ipcRenderer.sendMessage('fs', [
+    'rename',
+    path,
+    encodeURIComponent(newName),
+  ]);
+  window.electron.ipcRenderer.once('rename', (err, newPath) => {
+    if (!err) {
+      loadFiles(cb, newPath as string);
+    }
+  });
+}
+
 function nameValidator(
   siblings: TreeDataType[],
   curr: TreeDataType | undefined,
@@ -85,5 +99,6 @@ export {
   makeFile,
   readFile,
   trashItem,
+  renameItem,
   nameValidator,
 };

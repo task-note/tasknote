@@ -9,7 +9,13 @@ import Tree from '../../tree/src/Tree';
 import './FileTree.less';
 import { NodeDragEventParams } from '../../tree/src/contextTypes';
 import { EventDataNode, Key } from '../../tree/src/interface';
-import { TreeDataType, loadFiles, trashItem, nameValidator } from './FileOp';
+import {
+  TreeDataType,
+  loadFiles,
+  trashItem,
+  nameValidator,
+  renameItem,
+} from './FileOp';
 import { log } from './Logger';
 import showMessageBox from './messageBox';
 import showInputDialog from './InputDialog';
@@ -117,6 +123,11 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       'Please input your new name:',
       (val: string) => {
         log('-->', val);
+        renameItem(selFilePath, val, (treeData, sel) => {
+          this.setState({
+            gData: treeData,
+          });
+        });
       },
       selNode.title,
       nameValidator.bind(this, siblings, selNode),
