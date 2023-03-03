@@ -30,6 +30,22 @@ interface InputDialogProp {
   okName: string;
 }
 
+function displayTips(id: string, tips: string) {
+  const inputEle = document.querySelector(id) as HTMLInputElement;
+  const errTip = tippy(inputEle, {
+    content: tips,
+    animation: 'scale',
+    placement: 'bottom-start',
+    trigger: 'manual',
+    theme: 'error',
+    interactive: true,
+  });
+  errTip.show();
+  if (inputEle) {
+    inputEle.focus();
+  }
+}
+
 function InputDialog({
   title,
   tips,
@@ -51,22 +67,15 @@ function InputDialog({
         obj[key] = val;
       });
       const newName = obj.name as string;
+      if (newName.trim().length === 0) {
+        warn('empty, show error tippy!');
+        displayTips('#name', 'The name cannot be empty!');
+        return;
+      }
       if (validator) {
         if (!validator(newName)) {
           warn('validate name failed, show error tippy!');
-          const inputEle = document.querySelector('#name') as HTMLInputElement;
-          const errTip = tippy(inputEle, {
-            content: 'The name has been used, cannot rename to it!',
-            animation: 'scale',
-            placement: 'bottom-start',
-            trigger: 'manual',
-            theme: 'error',
-            interactive: true,
-          });
-          errTip.show();
-          if (inputEle) {
-            inputEle.focus();
-          }
+          displayTips('#name', 'The name has been used, cannot rename to it!');
           return;
         }
       }
@@ -117,6 +126,7 @@ function InputDialog({
                     <Textfield
                       {...fieldProps}
                       defaultValue={defaultVal}
+                      maxLength={255}
                       ref={focusRef}
                     />
                   </>

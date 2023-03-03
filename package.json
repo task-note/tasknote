@@ -109,7 +109,7 @@
     "electron-updater": "^5.2.3",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-router-dom": "^6.4.0",
+    "react-router": "^6.4.0",
     "classnames": "2.x",
     "rc-motion": "^2.0.1",
     "rc-virtual-list": "^3.4.8",
@@ -151,11 +151,15 @@
     "prosemirror-state": "1.4.1",
     "prosemirror-view": "1.28.2",
     "styled-components": "^5.3.3",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "prop-types": "^15.7.2",
+    "react-intersection-observer": "^8.26.2",
+    "@material-ui/icons": "^4.11.3"
   },
   "overrides": {
     "react-dom": "$react-dom",
-    "react": "$react"
+    "react": "$react",
+    "@types/react": "$@types/react"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",

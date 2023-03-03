@@ -4,6 +4,7 @@ import './App.css';
 import Sidebar from './Sidebar';
 import Hello from './Hello';
 import TaskEditor from './Editor';
+import Timeline from './Timeline';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Main id="Content">
             <Routes>
               <Route path="/editor" element={<TaskEditor />} />
+              <Route path="/timeline" element={<Timeline />} />
               <Route path="/" element={<Hello />} />
             </Routes>
           </Main>

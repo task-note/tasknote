@@ -95,6 +95,8 @@ const NaviMenu = () => {
   const onSelect = (node: TreeDataType) => {
     if (node.isLeaf) {
       navigate('/editor', { state: { id: node.key, title: node.title } });
+    } else {
+      navigate('/timeline', { state: { id: node.key, title: node.title } });
     }
   };
 

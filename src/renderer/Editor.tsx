@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useLoaderData } from 'react-router-dom';
 import { Editor } from '@tiptap/core';
 import '../../packages/blocknote/src/style.css';
 import styles from './Editor.module.css';
@@ -11,6 +11,7 @@ let currPath = '';
 let jsonContext;
 let loading = true;
 let currentTitle: string | null | undefined = '';
+let currentLocationKey: string | undefined;
 
 function saveContentAndTitle(editor: Editor) {
   const jsonContent = editor.getJSON();
@@ -44,36 +45,35 @@ function TaskEditor() {
 
   const [titleEdited, setTitleString] = useState<string>(title);
 
-  if (usrEditor) {
-    if (id !== currPath) {
-      currPath = id as string;
-      loading = true;
-      readFile(id, (path: string, content: string) => {
-        if (path !== id) {
-          error('logic error, read file mismatch: id=', id, ', path=', path);
-          return;
-        }
-        try {
-          jsonContext = JSON.parse(content);
-        } catch (err) {
-          warn(error);
-          jsonContext = {
-            type: 'doc',
-            content: [],
-          };
-        }
-        usrEditor.commands.setContent([jsonContext]);
-        const titleStr = Object.prototype.hasOwnProperty.call(
-          jsonContext,
-          'title'
-        )
-          ? jsonContext.title
-          : title;
-        currentTitle = titleStr;
-        setTitleString(titleStr);
-        loading = false;
-      });
-    }
+  function loadData() {
+    currPath = id as string;
+    loading = true;
+    log('loading:', currPath);
+    readFile(id, (path: string, content: string) => {
+      if (path !== id) {
+        error('logic error, read file mismatch: id=', id, ', path=', path);
+        return;
+      }
+      try {
+        jsonContext = JSON.parse(content);
+      } catch (err) {
+        warn(error);
+        jsonContext = {
+          type: 'doc',
+          content: [],
+        };
+      }
+      usrEditor?.commands.setContent([jsonContext]);
+      const titleStr = Object.prototype.hasOwnProperty.call(
+        jsonContext,
+        'title'
+      )
+        ? jsonContext.title
+        : title;
+      currentTitle = titleStr;
+      setTitleString(titleStr);
+      loading = false;
+    });
   }
 
   const onInputBlur = () => {
@@ -87,6 +87,11 @@ function TaskEditor() {
       saveContentAndTitle(usrEditor);
     }
   };
+  const location = useLocation();
+  if (usrEditor && location.key !== currentLocationKey) {
+    currentLocationKey = location.key;
+    loadData();
+  }
 
   return (
     <div id="editor-root">
