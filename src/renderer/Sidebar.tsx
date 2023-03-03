@@ -17,6 +17,7 @@ import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
 import showInputDialog from './InputDialog';
 import { makeDir, TreeDataType, makeFile } from './FileOp';
+import { error } from './Logger';
 
 let currSideWidth = 250;
 const NaviMenu = () => {
@@ -25,6 +26,10 @@ const NaviMenu = () => {
 
   const newFolder = () => {
     const fileTree = fileTreeRef.current;
+    if (!fileTree) {
+      error('new folder error, filetree is null');
+      return;
+    }
     const currSel = fileTree?.getCurrentSelect();
     let prefix = '.';
     let target = prefix;
@@ -38,11 +43,7 @@ const NaviMenu = () => {
       (val: string) => {
         makeDir(
           `${prefix}/${encodeURIComponent(val)}`,
-          (treeData: TreeDataType[], sel: string) => {
-            fileTree?.setState({
-              gData: treeData,
-            });
-          }
+          fileTree.updateTree.bind(fileTree)
         );
       },
       '',
@@ -52,6 +53,10 @@ const NaviMenu = () => {
 
   const newFile = () => {
     const fileTree = fileTreeRef.current;
+    if (!fileTree) {
+      error('new project note error, filetree is null');
+      return;
+    }
     const currSel = fileTree?.getCurrentSelect();
     let prefix = '.';
     let target;
@@ -73,11 +78,7 @@ const NaviMenu = () => {
       (val: string) => {
         makeFile(
           `${prefix}/${encodeURIComponent(val)}`,
-          (treeData: TreeDataType[], sel: string) => {
-            fileTree?.setState({
-              gData: treeData,
-            });
-          }
+          fileTree.updateTree.bind(fileTree)
         );
       },
       '',

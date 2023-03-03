@@ -120,11 +120,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       'Please input your new name:',
       (val: string) => {
         log('-->', val);
-        renameItem(selFilePath, val, (treeData, sel) => {
-          this.setState({
-            gData: treeData,
-          });
-        });
+        renameItem(selFilePath, val, this.updateTree.bind(this));
       },
       selNode.title,
       nameValidator.bind(this, siblings, selNode),
@@ -147,11 +143,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       (val) => {
         log('onDelete', val, selFilePath);
         if (val) {
-          trashItem(selFilePath, (treeData: TreeDataType[], sel: string) => {
-            this.setState({
-              gData: treeData,
-            });
-          });
+          trashItem(selFilePath, this.updateTree.bind(this));
         }
       }
     );
@@ -278,9 +270,27 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
   }
 
   updateTree(treeData: TreeDataType[], sel: string) {
+    let expanded = sel.substring(0, sel.lastIndexOf('/'));
+    expanded = expanded.replaceAll('//', '/');
+    const tree = this.treeRef.current;
+    const currExpanded = tree?.state.expandedKeys;
+    let extendedKeys = [];
+    if (currExpanded) {
+      extendedKeys = [...currExpanded, expanded];
+    } else {
+      extendedKeys = [expanded];
+    }
+
     this.setState({
       gData: treeData,
+      selectedKeys: [sel],
     });
+    tree?.setExpandedKeys(extendedKeys);
+    const { selCallback } = this.props;
+    const selNode = this.getNodeByKey(sel);
+    if (selCallback && selNode) {
+      selCallback(selNode);
+    }
   }
 
   render() {
@@ -298,6 +308,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
               defaultExpandAll
               // height={200}
               itemHeight={20}
+              selectedKeys={selectedKeys}
               draggable
               virtual={false}
               onDragStart={(info) => {
@@ -310,7 +321,6 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
               // style={{ overflow: 'scroll' }}
               treeData={gData}
               expandAction="doubleClick"
-              selectedKeys={selectedKeys}
               checkable={false}
               onSelect={this.onSelect}
               onRightClick={this.onContextMenu}

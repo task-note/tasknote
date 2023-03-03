@@ -38,7 +38,8 @@ function buildFileTree(event: Electron.IpcMainEvent, path: string) {
     for (let index = 0; index < allfiles.length; index++) {
       const file = allfiles[index];
       // log.info(file);
-      const filePath = `${subPath}/${file.name}`;
+      let filePath = `${subPath}/${file.name}`;
+      filePath = filePath.replaceAll('//', '/');
       const unescapedName = decodeURIComponent(file.name);
       if (file.isFile()) {
         data.push({
@@ -60,7 +61,7 @@ function buildFileTree(event: Electron.IpcMainEvent, path: string) {
   }
   log.info('<<!>> ls:', lsPath);
   const treeData: TreeDataType[] = [];
-  listFolder(lsPath, treeData);
+  listFolder(lsPath.replaceAll('\\', '/'), treeData);
   event.reply('ls', treeData);
 }
 
