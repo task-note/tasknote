@@ -9,6 +9,18 @@ export type TreeDataType = FieldDataNode<{
 
 export type LoadFilesCB = (treeData: TreeDataType[], sel: string) => void;
 export type ReadFileCB = (path: string, content: string) => void;
+export type DropCB = (result: number, dropPath: string) => void;
+export interface DropWarning {
+  discriminator: 'DropWarning';
+  errno: number;
+  src: boolean;
+  dst: boolean;
+  dropPath: string;
+}
+
+function instanceOfDropWarning(object: any) {
+  return object.discriminator === 'DropWarning';
+}
 
 function loadFiles(cb: LoadFilesCB, sel: string) {
   window.electron.ipcRenderer.sendMessage('fs', ['ls', '']);
@@ -42,6 +54,19 @@ function writeFile(path: string, data: string) {
   window.electron.ipcRenderer.sendMessage('fs', ['writefile', path, data]);
 }
 
+async function exists(path: string) {
+  window.electron.ipcRenderer.sendMessage('fs', ['exists', path]);
+  let isExists = false;
+  await new Promise<void>((resolve) => {
+    window.electron.ipcRenderer.once('exists', (result) => {
+      isExists = result as boolean;
+      resolve();
+    });
+  });
+  log('exists ', path, ':', isExists);
+  return isExists;
+}
+
 function readFile(path: string, cb: ReadFileCB) {
   window.electron.ipcRenderer.sendMessage('fs', ['readfile', path]);
   window.electron.ipcRenderer.once('readfile', (err, content, id) => {
@@ -65,16 +90,37 @@ function trashItem(path: string, cb: LoadFilesCB) {
   });
 }
 
+function isPath(path: string) {
+  return path.indexOf('/') >= 0 || path.indexOf('\\') >= 0;
+}
+
 function renameItem(path: string, newName: string, cb: LoadFilesCB) {
   log('rename item, rename folder:', path, ' to ', newName);
   window.electron.ipcRenderer.sendMessage('fs', [
     'rename',
     path,
-    encodeURIComponent(newName),
+    isPath(newName) ? newName : encodeURIComponent(newName),
   ]);
   window.electron.ipcRenderer.once('rename', (err, newPath) => {
     if (!err) {
       loadFiles(cb, newPath as string);
+    }
+  });
+}
+
+function trydrop(src: string, dst: string, cb: DropCB) {
+  log('try drop, src=', src, ', dst=', dst);
+  window.electron.ipcRenderer.sendMessage('fs', ['trydrop', src, dst]);
+  window.electron.ipcRenderer.once('trydrop', (err, newPath) => {
+    if (!err) {
+      cb(0, newPath as string);
+    } else if (instanceOfDropWarning(err)) {
+      const dropWarn = err as DropWarning;
+      log('trydrop', dropWarn.src, dropWarn.dst);
+      const result = !dropWarn.dst && !dropWarn.src ? 1 : 2;
+      cb(result, dropWarn.dropPath);
+    } else {
+      cb(3, '');
     }
   });
 }
@@ -101,4 +147,6 @@ export {
   trashItem,
   renameItem,
   nameValidator,
+  exists,
+  trydrop,
 };

@@ -115,7 +115,7 @@ const UniqueID = Extension.create({
       new Plugin({
         key: new PluginKey("uniqueID"),
         appendTransaction: (transactions, oldState, newState) => {
-          console.log("appendTransaction");
+          // console.log("appendTransaction");
           const docChanges =
             transactions.some((transaction) => transaction.docChanged) &&
             !oldState.doc.eq(newState.doc);

@@ -15,8 +15,9 @@ import {
   trashItem,
   nameValidator,
   renameItem,
+  trydrop,
 } from './FileOp';
-import { log } from './Logger';
+import { log, warn, error } from './Logger';
 import showMessageBox from './messageBox';
 import showInputDialog from './InputDialog';
 
@@ -73,11 +74,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       selectedKeys: [],
     };
     this.treeRef = React.createRef();
-    loadFiles((treeData: TreeDataType[], sel: string) => {
-      this.setState({
-        gData: treeData,
-      });
-    }, '');
+    this.reloadTree('');
   }
 
   getCurrentSelect() {
@@ -171,7 +168,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     }
   ) => {
     const { selCallback } = this.props;
-    console.log('onSelect, selected=', keys, info);
+    log('onSelect, selected=', keys, info);
     this.setState({ selectedKeys: keys });
     if (selCallback && info.selectedNodes.length > 0) {
       selCallback(info.selectedNodes[0]);
@@ -244,69 +241,47 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       dropToGap: boolean;
     }
   ) => {
-    console.log('drop', info);
     const dropKey = info.node.key;
     const dragKey = info.dragNode.key;
-    const dropPos = info.node.pos.split('-');
-    const dropPosition =
-      info.dropPosition - Number(dropPos[dropPos.length - 1]);
-
-    type LoopCallback = (
-      item: TreeDataType,
-      index: number,
-      arr: TreeDataType[]
-    ) => void;
-
-    const loop = (
-      data: TreeDataType[],
-      key: string,
-      callback: LoopCallback
-    ) => {
-      data.forEach((item, index, arr) => {
-        if (item.key === key) {
-          callback(item, index, arr);
-          return;
-        }
-        if (item.children) {
-          loop(item.children, key, callback);
-        }
-      });
-    };
-
-    const { gData } = this.state;
-    const data = [...gData];
-
-    // Find dragObject
-    let dragObj: TreeDataType | null | undefined;
-    loop(data, dragKey, (item, index, arr) => {
-      arr.splice(index, 1);
-      dragObj = item;
-    });
-
-    if (dragObj) {
-      let ar: TreeDataType[] = [];
-      let i = 0;
-      // Drop on the content
-      loop(data, dropKey, (item, index, arr) => {
-        if (dropPosition === 0 && item.children) {
-          item.children = item.children || [];
-          // where to insert
-          item.children.unshift(dragObj as TreeDataType);
-        } else {
-          ar = arr;
-          i = index;
-        }
-      });
-      if (dropPosition === -1) {
-        ar.splice(i, 0, dragObj);
+    log('drop', dragKey, dropKey);
+    trydrop(dragKey, dropKey, (result, dropPath) => {
+      if (result === 0) {
+        this.reloadTree(dropPath);
+      } else if (result === 2) {
+        showMessageBox(
+          'Drop Failed',
+          'Same name file or folder exists in the destination folder',
+          () => {},
+          'OK'
+        );
+      } else if (result === 1) {
+        showMessageBox(
+          'Confirm',
+          'Same name file exists in the destination folder, Do you want replace',
+          (val) => {
+            if (val === 1) {
+              renameItem(dragKey, dropPath, this.updateTree.bind(this));
+            } else {
+              warn('User abandon file replace:', val);
+            }
+          },
+          'Yes'
+        );
       } else {
-        ar.splice(i + 1, 0, dragObj);
+        error('unknown drop error:', result);
       }
-    }
-    this.setState({
-      gData: data,
     });
   };
+
+  reloadTree(defaultSel: string) {
+    loadFiles(this.updateTree.bind(this), defaultSel);
+  }
+
+  updateTree(treeData: TreeDataType[], sel: string) {
+    this.setState({
+      gData: treeData,
+    });
+  }
 
   render() {
     const { gData, selectedKeys } = this.state;

@@ -2,7 +2,7 @@
 import { app, shell } from 'electron';
 import * as fs from 'fs';
 import log from 'electron-log';
-import { TreeDataType } from '../renderer/FileOp';
+import { TreeDataType, DropWarning } from '../renderer/FileOp';
 
 const pathlib = require('path');
 
@@ -18,14 +18,20 @@ function unifyPath(path: string) {
   return dstPath;
 }
 
-function shortString(str: string, limit = 20) {
-  if (str.length < limit) {
-    return str;
+function isDir(path: string) {
+  try {
+    const stat = fs.lstatSync(path);
+    return stat.isDirectory();
+  } catch (e) {
+    return false;
   }
-  return `${str.substring(0, limit)} ...`;
 }
 
-async function buildFileTree(event: Electron.IpcMainEvent, path: string) {
+function isPath(path: string) {
+  return path.indexOf('/') >= 0 || path.indexOf('\\') >= 0;
+}
+
+function buildFileTree(event: Electron.IpcMainEvent, path: string) {
   const lsPath = `${baseDir()}/${path}`;
   function listFolder(subPath: string, data: TreeDataType[]) {
     const allfiles = fs.readdirSync(subPath, { withFileTypes: true });
@@ -71,6 +77,11 @@ export default async function handleFileCommands(
       log.info('<<!>> mkdir, path=', path, err);
       event.reply('mkdir', err, path);
     });
+  } else if (args[0] === 'exists') {
+    // log.info('writefile', args[1], args[2]);
+    const dstPath = unifyPath(args[1]);
+    const result = fs.existsSync(dstPath);
+    event.reply('exists', result);
   } else if (args[0] === 'writefile') {
     // log.info('writefile', args[1], args[2]);
     const dstPath = unifyPath(args[1]);
@@ -109,10 +120,33 @@ export default async function handleFileCommands(
       });
   } else if (args[0] === 'rename') {
     const parentPath = pathlib.dirname(args[1]);
-    const fileNameNew = `${parentPath}/${args[2]}`;
+    const fileNameNew = isPath(args[2]) ? args[2] : `${parentPath}/${args[2]}`;
     log.info('rename file:', args[1], ', to:', fileNameNew);
     fs.rename(args[1], fileNameNew, (err) => {
       event.reply('rename', err, fileNameNew);
     });
+  } else if (args[0] === 'trydrop') {
+    const srcPath = args[1];
+    const parentPath = isDir(args[2]) ? args[2] : pathlib.dirname(args[2]);
+    const fileName = pathlib.basename(srcPath);
+    const fileNameNew = `${parentPath}/${fileName}`;
+    log.info('trydrop file:', srcPath, ', to:', args[2], ', n:', fileNameNew);
+    if (!fs.existsSync(fileNameNew)) {
+      fs.rename(srcPath, fileNameNew, (err) => {
+        event.reply('trydrop', err, fileNameNew);
+      });
+      return;
+    }
+    const isSrcDir = isDir(srcPath);
+    const isDstDir = isDir(fileNameNew);
+    log.info('trydrop, exists, src is dir?=', isSrcDir, ', dst?=', isDstDir);
+    const dropErr: DropWarning = {
+      discriminator: 'DropWarning',
+      errno: 2,
+      src: isSrcDir,
+      dst: isDstDir,
+      dropPath: fileNameNew,
+    };
+    event.reply('trydrop', dropErr);
   }
 }

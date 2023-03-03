@@ -12,36 +12,44 @@ import Modal, {
 
 let openMessageBox: () => void;
 export type InputCallback = (val: number) => void;
-let inputCallbackFunc: InputCallback;
-let dialogTitle = 'Warning Dialog';
-let dialogMsg = 'Warning Dialog';
 
-function MessageBox() {
+interface MessageBoxProp {
+  title: string;
+  message: string;
+  callback: InputCallback;
+  okname: string;
+}
+
+function MessageBox({ title, message, callback, okname }: MessageBoxProp) {
   const [isOpen, setIsOpen] = useState(false);
   openMessageBox = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => {
     setIsOpen(false);
-    inputCallbackFunc(0);
-  }, []);
+    callback(0);
+  }, [callback]);
   const okModal = useCallback(() => {
     setIsOpen(false);
-    inputCallbackFunc(1);
-  }, []);
+    callback(1);
+  }, [callback]);
+
+  const hasCancel = okname !== 'OK';
 
   return (
     <ModalTransition>
       {isOpen && (
         <Modal onClose={closeModal}>
           <ModalHeader>
-            <ModalTitle appearance="warning">{dialogTitle}</ModalTitle>
+            <ModalTitle appearance="warning">{title}</ModalTitle>
           </ModalHeader>
-          <ModalBody>{dialogMsg}</ModalBody>
+          <ModalBody>{message}</ModalBody>
           <ModalFooter>
-            <Button appearance="subtle" onClick={closeModal}>
-              Cancel
-            </Button>
+            {hasCancel && (
+              <Button appearance="subtle" onClick={closeModal}>
+                Cancel
+              </Button>
+            )}
             <Button appearance="warning" onClick={okModal} autoFocus>
-              Delete
+              {okname}
             </Button>
           </ModalFooter>
         </Modal>
@@ -50,14 +58,20 @@ function MessageBox() {
   );
 }
 
-function showMessageBox(title: string, tips: string, cb: InputCallback) {
-  inputCallbackFunc = cb;
-  dialogTitle = title;
-  dialogMsg = tips;
+function showMessageBox(
+  title: string,
+  tips: string,
+  cb: InputCallback,
+  okname = 'Delete'
+) {
   const fakeRenderTarget = document.getElementById('fake-container');
-  ReactDOM.render(<MessageBox />, fakeRenderTarget, () => {
-    openMessageBox();
-  });
+  ReactDOM.render(
+    <MessageBox title={title} message={tips} callback={cb} okname={okname} />,
+    fakeRenderTarget,
+    () => {
+      openMessageBox();
+    }
+  );
 }
 
 export default showMessageBox;
