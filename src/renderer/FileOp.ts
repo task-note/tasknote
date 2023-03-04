@@ -1,4 +1,4 @@
-import { FieldDataNode } from '../../tree/src/interface';
+import { FieldDataNode } from '../../packages/tree/src/interface';
 import { log, error } from './Logger';
 
 export type TreeDataType = FieldDataNode<{

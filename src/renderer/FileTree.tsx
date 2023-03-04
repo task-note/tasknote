@@ -5,10 +5,10 @@ import { ButtonItem, MenuGroup, Section } from '@atlaskit/menu';
 import { N800 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 import tippy, { Instance } from 'tippy.js';
-import Tree from '../../tree/src/Tree';
+import Tree from '../../packages/tree/src/Tree';
 import './FileTree.less';
-import { NodeDragEventParams } from '../../tree/src/contextTypes';
-import { EventDataNode, Key } from '../../tree/src/interface';
+import { NodeDragEventParams } from '../../packages/tree/src/contextTypes';
+import { EventDataNode, Key } from '../../packages/tree/src/interface';
 import {
   TreeDataType,
   loadFiles,
