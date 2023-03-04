@@ -13,15 +13,15 @@ export default function Hello() {
         <div className="Hello">
           <Button
             appearance="primary"
-            iconBefore={<NewFileIcon label="" size="small" />}
-          >
-            New Project Note
-          </Button>
-          <Button
-            appearance="primary"
             iconBefore={<NewFolderIcon label="" size="small" />}
           >
             New Folder
+          </Button>
+          <Button
+            appearance="primary"
+            iconBefore={<NewFileIcon label="" size="small" />}
+          >
+            New Project Note
           </Button>
         </div>
       </div>

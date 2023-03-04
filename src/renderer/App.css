@@ -45,12 +45,8 @@ li {
 }
 
 #HelloInner {
-  background: linear-gradient(
-    200.96deg,
-    #fedc2a -29.09%,
-    #dd5789 51.77%,
-    #7a2c9e 129.35%
-  );
+  background: #2980b9;  /* fallback for old browsers */
+  background: linear-gradient(to left bottom, #316fac, #ccd3d9);
   display: flex;
   align-items: center;
   width: 100vw;

@@ -42,11 +42,13 @@ function buildFileTree(event: Electron.IpcMainEvent, path: string) {
       filePath = filePath.replaceAll('//', '/');
       const unescapedName = decodeURIComponent(file.name);
       if (file.isFile()) {
-        data.push({
-          key: filePath,
-          title: unescapedName,
-          isLeaf: true,
-        });
+        if (!file.name.startsWith('.')) {
+          data.push({
+            key: filePath,
+            title: unescapedName,
+            isLeaf: true,
+          });
+        }
       } else {
         const folder = {
           key: filePath,

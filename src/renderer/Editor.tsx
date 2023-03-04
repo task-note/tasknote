@@ -100,6 +100,7 @@ function TaskEditor() {
           type="text"
           value={titleEdited}
           onBlur={onInputBlur}
+          maxLength={1024}
           onChange={(e) => setTitleString(e.target.value)}
         />
       </div>
