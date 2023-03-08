@@ -10,12 +10,24 @@ export type TreeDataType = FieldDataNode<{
 export type LoadFilesCB = (treeData: TreeDataType[], sel: string) => void;
 export type ReadFileCB = (path: string, content: string) => void;
 export type DropCB = (result: number, dropPath: string) => void;
+export type TimelineCB = (results: TimelineData[]) => void;
+
 export interface DropWarning {
   discriminator: 'DropWarning';
   errno: number;
   src: boolean;
   dst: boolean;
   dropPath: string;
+}
+
+export interface TimelineData {
+  title: string;
+  subtitle: string;
+  createTime: Date;
+  modifyTime: Date;
+  content: string;
+  key: string;
+  isFile: boolean;
 }
 
 function instanceOfDropWarning(object: any) {
@@ -138,6 +150,20 @@ function nameValidator(
   return true;
 }
 
+function loadFolder(path: string, cb: TimelineCB, start = 0, count = 50) {
+  window.electron.ipcRenderer.sendMessage('fs', [
+    'loadFolder',
+    path,
+    start,
+    count,
+  ]);
+  window.electron.ipcRenderer.once('loadFolder', (err, elements) => {
+    if (!err) {
+      cb(elements as TimelineData[]);
+    }
+  });
+}
+
 export {
   loadFiles,
   writeFile,
@@ -149,4 +175,5 @@ export {
   nameValidator,
   exists,
   trydrop,
+  loadFolder,
 };

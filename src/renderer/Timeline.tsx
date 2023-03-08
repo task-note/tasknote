@@ -12,19 +12,10 @@ import '../../packages/react-vertical-timeline/src/VerticalTimeline.css';
 import '../../packages/react-vertical-timeline/src/VerticalTimelineElement.css';
 import './Timeline.css';
 import { log } from './Logger';
+import { TimelineData, loadFolder } from './FileOp';
 
 interface TimelineHeaderProp {
   title: string;
-}
-
-export interface TimelineData {
-  title: string;
-  subtitle: string;
-  createTime: Date;
-  modifyTime: Date;
-  content: string;
-  key: string;
-  isFile: boolean;
 }
 
 function capString(str: string) {
@@ -59,10 +50,12 @@ function getTimelineContent(elements: TimelineData[]) {
     return (
       <VerticalTimelineElement {...props} key={element.key}>
         <h3 className="vertical-timeline-element-title">{element.title}</h3>
-        <h4 className="vertical-timeline-element-subtitle">
+        {/* <h4 className="vertical-timeline-element-subtitle">
           {element.subtitle}
-        </h4>
-        <p>{element.content}</p>
+        </h4> */}
+        <p
+          dangerouslySetInnerHTML={{ __html: `${element.content}<br>......` }}
+        />
       </VerticalTimelineElement>
     );
   });
@@ -90,33 +83,16 @@ export default function Timeline() {
   const { state } = useLocation();
   const { id, title } = state; // Read values passed on state
   const [currentLocation, setCurrentLocation] = useState('');
+  const [elements, setElements] = useState<TimelineData[]>([]);
 
   const location = useLocation();
   if (location.key !== currentLocation) {
     setCurrentLocation(location.key);
-    log('-->', 'loadData for ', id);
+    log('loadData for ', id);
+    loadFolder(id, (data) => {
+      setElements(data);
+    });
   }
-
-  const elements = [
-    {
-      title: 'Creative Director',
-      subtitle: 'Miami, FL',
-      isFile: true,
-      modifyTime: new Date(),
-      createTime: new Date(),
-      key: '1',
-      content: 'Creative Direction, User Experience, Visual Design, Project Management, Team Leading'
-    },
-    {
-      title: 'Creative Director',
-      subtitle: 'Miami, FL',
-      isFile: false,
-      modifyTime: new Date(),
-      createTime: new Date(),
-      key: '2',
-      content: 'Creative Direction, User Experience,n Visual Design, Project Management, Team Leading '
-    },
-  ];
 
   const timelineEle = getTimelineContent(elements);
   return (

@@ -2,7 +2,7 @@
 import { app, shell } from 'electron';
 import * as fs from 'fs';
 import log from 'electron-log';
-import { TreeDataType, DropWarning } from '../renderer/FileOp';
+import { TreeDataType, DropWarning, TimelineData } from '../renderer/FileOp';
 
 const pathlib = require('path');
 
@@ -65,6 +65,90 @@ function buildFileTree(event: Electron.IpcMainEvent, path: string) {
   const treeData: TreeDataType[] = [];
   listFolder(lsPath.replaceAll('\\', '/'), treeData);
   event.reply('ls', treeData);
+}
+
+function getTexts(nodes: any, texts: string[]) {
+  const hasChildren = Object.prototype.hasOwnProperty.call(nodes, 'content');
+  if (texts.length >= 3) {
+    return;
+  }
+  if (hasChildren) {
+    let result = '';
+    nodes.content.forEach((item) => {
+      if (item.type === 'text') {
+        result += item.text;
+      } else {
+        getTexts(item, texts);
+      }
+    });
+    result = result.trim();
+    if (result.length > 0) {
+      texts.push(result);
+    }
+  }
+}
+
+function readFileDetail(path: string) {
+  const content = fs.readFileSync(path, { encoding: 'utf8' });
+  let jsonContext;
+  try {
+    jsonContext = JSON.parse(content);
+  } catch (error) {
+    log.warn(error);
+    jsonContext = {
+      type: 'doc',
+      content: [],
+      title: 'nothing',
+    };
+  }
+  const stats = fs.statSync(path);
+  const texts: string[] = [];
+  getTexts(jsonContext, texts);
+  return {
+    title: jsonContext.title,
+    subtitle: jsonContext.title,
+    content: texts.join('<br>'),
+    key: path,
+    isFile: true,
+    createTime: stats.birthtime,
+    modifyTime: stats.mtime,
+  };
+}
+
+function loadFolder(
+  event: Electron.IpcMainEvent,
+  path: string,
+  start: number,
+  count: number
+) {
+  const elements: TimelineData[] = [];
+  const allfiles = fs.readdirSync(path, { withFileTypes: true });
+  for (let index = start; index < allfiles.length; index++) {
+    const file = allfiles[index];
+    // log.info(file);
+    if (!file.name.startsWith('.')) {
+      let filePath = `${path}/${file.name}`;
+      filePath = filePath.replaceAll('//', '/');
+      if (file.isFile()) {
+        elements.push(readFileDetail(filePath));
+      } else {
+        const unescapedName = decodeURIComponent(file.name);
+        elements.push({
+          title: unescapedName,
+          subtitle: unescapedName,
+          content: 'will add a little bit later',
+          key: filePath,
+          isFile: file.isFile(),
+          createTime: new Date(),
+          modifyTime: new Date(),
+        });
+      }
+    }
+    if (index - start >= count) {
+      break;
+    }
+  }
+  event.reply('loadFolder', undefined, elements);
 }
 
 export default async function handleFileCommands(
@@ -151,5 +235,7 @@ export default async function handleFileCommands(
       dropPath: fileNameNew,
     };
     event.reply('trydrop', dropErr);
+  } else if (args[0] === 'loadFolder') {
+    loadFolder(event, args[1], args[2], args[3]);
   }
 }
