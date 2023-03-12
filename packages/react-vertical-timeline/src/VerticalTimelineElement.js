@@ -16,6 +16,7 @@ const VerticalTimelineElement = ({
   onTimelineElementClick = null,
   iconStyle = null,
   id = '',
+  isFile = true,
   position = '',
   style = null,
   textClassName = '',
@@ -54,6 +55,7 @@ const VerticalTimelineElement = ({
           </span>
           <div
             style={contentStyle}
+            id={`${id}#${isFile}`}
             onClick={onTimelineElementClick}
             className={classNames(
               textClassName,

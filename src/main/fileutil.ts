@@ -98,7 +98,7 @@ function readFileDetail(path: string) {
     jsonContext = {
       type: 'doc',
       content: [],
-      title: 'nothing',
+      title: decodeURIComponent(pathlib.basename(path)),
     };
   }
   const stats = fs.statSync(path);
@@ -110,6 +110,29 @@ function readFileDetail(path: string) {
     content: texts.join('<br>'),
     key: path,
     isFile: true,
+    createTime: stats.birthtime,
+    modifyTime: stats.mtime,
+  };
+}
+
+function readFolderDetail(path: string) {
+  const allfiles = fs.readdirSync(path, { withFileTypes: true });
+  const texts: string[] = [];
+  for (let index = 0; index < allfiles.length && texts.length < 3; index++) {
+    const file = allfiles[index];
+    // log.info(file);
+    if (!file.name.startsWith('.')) {
+      texts.push(decodeURIComponent(file.name));
+    }
+  }
+  const stats = fs.statSync(path);
+  const fileName = decodeURIComponent(pathlib.basename(path));
+  return {
+    title: fileName,
+    subtitle: fileName,
+    content: texts.join('<br>'),
+    key: path,
+    isFile: false,
     createTime: stats.birthtime,
     modifyTime: stats.mtime,
   };
@@ -132,23 +155,17 @@ function loadFolder(
       if (file.isFile()) {
         elements.push(readFileDetail(filePath));
       } else {
-        const unescapedName = decodeURIComponent(file.name);
-        elements.push({
-          title: unescapedName,
-          subtitle: unescapedName,
-          content: 'will add a little bit later',
-          key: filePath,
-          isFile: file.isFile(),
-          createTime: new Date(),
-          modifyTime: new Date(),
-        });
+        elements.push(readFolderDetail(filePath));
       }
     }
     if (index - start >= count) {
       break;
     }
   }
-  event.reply('loadFolder', undefined, elements);
+  const sorted = elements.sort((a, b) => {
+    return (b.modifyTime - a.modifyTime);
+  });
+  event.reply('loadFolder', undefined, sorted);
 }
 
 export default async function handleFileCommands(

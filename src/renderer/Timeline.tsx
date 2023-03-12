@@ -1,5 +1,5 @@
-import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import FolderIcon from '@material-ui/icons/Folder';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Button, { ButtonGroup } from '@atlaskit/button';
@@ -22,7 +22,10 @@ function capString(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function getTimelineContent(elements: TimelineData[]) {
+function getTimelineContent(
+  elements: TimelineData[],
+  clickCB: (e: React.MouseEvent) => void
+) {
   const propsFile = {
     date: '2023',
     className: 'vertical-timeline-element--work',
@@ -48,12 +51,19 @@ function getTimelineContent(elements: TimelineData[]) {
   return elements.map((element) => {
     const props = getProps(element);
     return (
-      <VerticalTimelineElement {...props} key={element.key}>
+      <VerticalTimelineElement
+        {...props}
+        key={element.key}
+        id={element.key}
+        isFile={element.isFile}
+        onTimelineElementClick={clickCB}
+      >
         <h3 className="vertical-timeline-element-title">{element.title}</h3>
         {/* <h4 className="vertical-timeline-element-subtitle">
           {element.subtitle}
         </h4> */}
         <p
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: `${element.content}<br>......` }}
         />
       </VerticalTimelineElement>
@@ -81,7 +91,8 @@ function TimelineHeader({ title }: TimelineHeaderProp) {
 
 export default function Timeline() {
   const { state } = useLocation();
-  const { id, title } = state; // Read values passed on state
+  const navigate = useNavigate();
+  const { id, title, selCB } = state; // Read values passed on state
   const [currentLocation, setCurrentLocation] = useState('');
   const [elements, setElements] = useState<TimelineData[]>([]);
 
@@ -94,7 +105,22 @@ export default function Timeline() {
     });
   }
 
-  const timelineEle = getTimelineContent(elements);
+  function onElementClicked(event: React.MouseEvent) {
+    const current = event?.currentTarget;
+    if (current) {
+      const keys = current.getAttribute('id');
+      const eleTitle = current.querySelector('h3')?.textContent;
+      const keyPairs = keys?.split('#');
+      if (keyPairs?.length === 2) {
+        const isFile = JSON.parse(keyPairs[1]);
+        log('navigate from timeline', keyPairs[0], isFile, eleTitle);
+        selCB(keyPairs[0]);
+      }
+    }
+  }
+
+  const timelineEle = getTimelineContent(elements, onElementClicked);
+
   return (
     <div id="timeline_root">
       <TimelineHeader title={capString(title)} />

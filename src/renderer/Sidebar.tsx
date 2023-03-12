@@ -17,7 +17,7 @@ import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
 import FileTree from './FileTree';
 import showInputDialog from './InputDialog';
 import { makeDir, TreeDataType, makeFile } from './FileOp';
-import { error } from './Logger';
+import { log, error } from './Logger';
 
 let currSideWidth = 250;
 const NaviMenu = () => {
@@ -92,12 +92,34 @@ const NaviMenu = () => {
     // console.log('will add it later', element?.getCurrentSelect());
   };
 
-  const onSelect = (node: TreeDataType) => {
+  function navigateTo(node: TreeDataType) {
     if (node.isLeaf) {
       navigate('/editor', { state: { id: node.key, title: node.title } });
     } else {
-      navigate('/timeline', { state: { id: node.key, title: node.title } });
+      navigate('/timeline', {
+        state: {
+          id: node.key,
+          title: node.title,
+          selCB: setCurrentSel,
+        },
+      });
     }
+  }
+
+  const setCurrentSel = (key: string) => {
+    const fileTree = fileTreeRef.current;
+    log('setCurrnetSelection to:', key);
+    if (fileTree) {
+      fileTree.setCurrentSelect(key);
+      const node = fileTree.getNodeByKey(key);
+      if (node) {
+        navigateTo(node);
+      }
+    }
+  };
+
+  const onSelect = (node: TreeDataType) => {
+    navigateTo(node);
   };
 
   return (

@@ -82,6 +82,19 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     return element?.state.selectedKeys;
   }
 
+  setCurrentSelect(key: string) {
+    this.setState({ selectedKeys: [key] });
+    const tree = this.treeRef.current;
+    const currExpanded = tree?.state.expandedKeys;
+    let extendedKeys = [];
+    if (currExpanded) {
+      extendedKeys = [...currExpanded, key];
+    } else {
+      extendedKeys = [key];
+    }
+    tree?.setExpandedKeys(extendedKeys);
+  }
+
   getNodeByKey(key: string) {
     const { gData } = this.state;
     const [node] = findNode(key, gData);
