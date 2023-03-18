@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 import FolderIcon from '@material-ui/icons/Folder';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -16,6 +16,8 @@ import { TimelineData, loadFolder } from './FileOp';
 
 interface TimelineHeaderProp {
   title: string;
+  newFile: () => void;
+  newFolder: () => void;
 }
 
 function capString(str: string) {
@@ -71,16 +73,22 @@ function getTimelineContent(
   });
 }
 
-function TimelineHeader({ title }: TimelineHeaderProp) {
+function TimelineHeader({ title, newFile, newFolder }: TimelineHeaderProp) {
   return (
     <div id="timeline_toolbar">
       <h1 id="timeline_title">{title}</h1>
       <div id="timeline_buttons">
         <ButtonGroup appearance="primary">
-          <Button iconBefore={<NewFolderIcon label="" size="small" />}>
+          <Button
+            onClick={newFolder}
+            iconBefore={<NewFolderIcon label="" size="small" />}
+          >
             New Folder
           </Button>
-          <Button iconBefore={<NewFileIcon label="" size="small" />}>
+          <Button
+            onClick={newFile}
+            iconBefore={<NewFileIcon label="" size="small" />}
+          >
             New Project Note
           </Button>
         </ButtonGroup>
@@ -91,8 +99,7 @@ function TimelineHeader({ title }: TimelineHeaderProp) {
 
 export default function Timeline() {
   const { state } = useLocation();
-  const navigate = useNavigate();
-  const { id, title, selCB } = state; // Read values passed on state
+  const { id, title, selCB, newFileCB, newFolderCB } = state; // Read values passed on state
   const [currentLocation, setCurrentLocation] = useState('');
   const [elements, setElements] = useState<TimelineData[]>([]);
 
@@ -102,6 +109,8 @@ export default function Timeline() {
     log('loadData for ', id);
     loadFolder(id, (data) => {
       setElements(data);
+      const element = document.getElementById('timeline_toolbar');
+      element?.scrollIntoView();
     });
   }
 
@@ -123,7 +132,11 @@ export default function Timeline() {
 
   return (
     <div id="timeline_root">
-      <TimelineHeader title={capString(title)} />
+      <TimelineHeader
+        title={capString(title)}
+        newFile={newFileCB}
+        newFolder={newFolderCB}
+      />
       <VerticalTimeline>{timelineEle}</VerticalTimeline>
     </div>
   );

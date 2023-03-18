@@ -24,18 +24,25 @@ const NaviMenu = () => {
   const fileTreeRef: React.RefObject<FileTree> = useRef(null);
   const navigate = useNavigate();
 
-  const newFolder = () => {
+  const newFolderInternal = (isRoot: boolean) => {
     const fileTree = fileTreeRef.current;
     if (!fileTree) {
       error('new folder error, filetree is null');
       return;
     }
-    const currSel = fileTree?.getCurrentSelect();
+    const currSel = isRoot ? null : fileTree?.getCurrentSelect();
     let prefix = '.';
     let target = prefix;
     if (currSel && currSel.length > 0) {
       target = currSel[0] as string;
-      prefix = target.substring(0, target.lastIndexOf('/'));
+      if (target.length > 0) {
+        const targetNode = fileTree?.getNodeByKey(target);
+        if (targetNode?.isLeaf) {
+          prefix = target.substring(0, target.lastIndexOf('/'));
+        } else {
+          prefix = target;
+        }
+      }
     }
     showInputDialog(
       'Create New Project Folder',
@@ -49,6 +56,14 @@ const NaviMenu = () => {
       '',
       fileTree?.getValidator(target)
     );
+  };
+
+  const newFolder = () => {
+    newFolderInternal(false);
+  };
+
+  const newRootFolder = () => {
+    newFolderInternal(true);
   };
 
   const newFile = () => {
@@ -100,7 +115,10 @@ const NaviMenu = () => {
         state: {
           id: node.key,
           title: node.title,
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
           selCB: setCurrentSel,
+          newFileCB: newFile,
+          newFolderCB: newFolder,
         },
       });
     }
@@ -159,6 +177,7 @@ const NaviMenu = () => {
             ref={fileTreeRef}
             width={currSideWidth}
             selCallback={onSelect}
+            newRootFolderCB={newRootFolder}
           />
         </NavigationContent>
         <NavigationFooter>

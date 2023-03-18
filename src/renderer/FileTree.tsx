@@ -5,6 +5,7 @@ import { ButtonItem, MenuGroup, Section } from '@atlaskit/menu';
 import { N800 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 import tippy, { Instance } from 'tippy.js';
+
 import Tree from '../../packages/tree/src/Tree';
 import './FileTree.less';
 import { NodeDragEventParams } from '../../packages/tree/src/contextTypes';
@@ -20,6 +21,7 @@ import {
 import { log, warn, error } from './Logger';
 import showMessageBox from './messageBox';
 import showInputDialog from './InputDialog';
+import { IconCirclePlus } from './CustomIcons';
 
 const STYLE = `
 .rc-tree-child-tree {
@@ -57,9 +59,24 @@ function findNode(
   return [undefined, []];
 }
 
+function generateKeys(key: string) {
+  const result = [];
+  let lastPos = 0;
+  let pos = key.indexOf('/', lastPos);
+  while (pos >= 0) {
+    if (pos > 0) {
+      result.push(key.substring(0, pos));
+    }
+    lastPos = pos + 1;
+    pos = key.indexOf('/', lastPos);
+  }
+  return result;
+}
+
 interface FileTreeProps {
   width: number;
   selCallback: OnSelectType | undefined;
+  newRootFolderCB: () => void | undefined;
 }
 
 class FileTree extends Component<FileTreeProps, FileTreeState> {
@@ -87,10 +104,11 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     const tree = this.treeRef.current;
     const currExpanded = tree?.state.expandedKeys;
     let extendedKeys = [];
+    const newExpands = generateKeys(key);
     if (currExpanded) {
-      extendedKeys = [...currExpanded, key];
+      extendedKeys = [...currExpanded, ...newExpands];
     } else {
-      extendedKeys = [key];
+      extendedKeys = newExpands;
     }
     tree?.setExpandedKeys(extendedKeys);
   }
@@ -253,6 +271,10 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       if (result === 0) {
         this.reloadTree(dropPath);
       } else if (result === 2) {
+        if (dropPath === dragKey) {
+          log('drop in the same folder, ignore');
+          return;
+        }
         showMessageBox(
           'Drop Failed',
           'Same name file or folder exists in the destination folder',
@@ -260,6 +282,10 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
           'OK'
         );
       } else if (result === 1) {
+        if (dropPath === dragKey) {
+          log('drop in the same folder, ignore');
+          return;
+        }
         showMessageBox(
           'Confirm',
           'Same name file exists in the destination folder, Do you want replace',
@@ -308,10 +334,14 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
 
   render() {
     const { gData, selectedKeys } = this.state;
-    const { width } = this.props;
+    const { width, newRootFolderCB } = this.props;
     const sideWidth = width - 35;
+
     return (
       <div className="filetree" id="filetree">
+        <button id="new_folder" type="button" onClick={newRootFolderCB}>
+          <IconCirclePlus />
+        </button>
         <span className="filetree_title">Folders</span>
         <style dangerouslySetInnerHTML={{ __html: STYLE }} />
         <div style={{ display: 'flex', width: sideWidth, overflow: 'hidden' }}>

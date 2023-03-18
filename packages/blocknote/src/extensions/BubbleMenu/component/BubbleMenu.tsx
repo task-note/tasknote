@@ -1,5 +1,7 @@
-import DropdownMenu, { DropdownItemGroup } from "@atlaskit/dropdown-menu";
-import { Editor } from "@tiptap/core";
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable react/destructuring-assignment */
+import DropdownMenu, { DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import { Editor } from '@tiptap/core';
 import {
   RiBold,
   RiH1,
@@ -14,34 +16,34 @@ import {
   RiStrikethrough,
   RiText,
   RiUnderline,
-} from "react-icons/ri";
-import { SimpleToolbarButton } from "../../../shared/components/toolbar/SimpleToolbarButton";
-import { Toolbar } from "../../../shared/components/toolbar/Toolbar";
-import { useEditorForceUpdate } from "../../../shared/hooks/useEditorForceUpdate";
-import { findBlock } from "../../Blocks/helpers/findBlock";
-import formatKeyboardShortcut from "../../helpers/formatKeyboardShortcut";
-import DropdownBlockItem from "./DropdownBlockItem";
-import LinkToolbarButton from "./LinkToolbarButton";
+} from 'react-icons/ri';
+import { SimpleToolbarButton } from '../../../shared/components/toolbar/SimpleToolbarButton';
+import { Toolbar } from '../../../shared/components/toolbar/Toolbar';
+import { useEditorForceUpdate } from '../../../shared/hooks/useEditorForceUpdate';
+import { findBlock } from '../../Blocks/helpers/findBlock';
+import formatKeyboardShortcut from '../../helpers/formatKeyboardShortcut';
+import DropdownBlockItem from './DropdownBlockItem';
+import { LinkToolbarButton } from './LinkToolbarButton';
 
-type ListType = "li" | "oli";
+type ListType = 'li' | 'oli';
 
 function getBlockName(
   currentBlockHeading: number | undefined,
   currentBlockListType: ListType | undefined
 ) {
-  const headings = ["Heading 1", "Heading 2", "Heading 3"];
+  const headings = ['Heading 1', 'Heading 2', 'Heading 3'];
   const lists = {
-    li: "Bullet List",
-    oli: "Numbered List",
+    li: 'Bullet List',
+    oli: 'Numbered List',
   };
   // A heading that's also a list, should show as Heading
   if (currentBlockHeading) {
     return headings[currentBlockHeading - 1];
-  } else if (currentBlockListType) {
-    return lists[currentBlockListType];
-  } else {
-    return "Text";
   }
+  if (currentBlockListType) {
+    return lists[currentBlockListType];
+  }
+  return 'Text';
 }
 
 // TODO: add list options, indentation
@@ -66,7 +68,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Text"
             icon={RiText}
-            isSelected={currentBlockName === "Paragraph"}
+            isSelected={currentBlockName === 'Paragraph'}
             onClick={() =>
               props.editor.chain().focus().unsetBlockHeading().unsetList().run()
             }
@@ -74,7 +76,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Heading 1"
             icon={RiH1}
-            isSelected={currentBlockName === "Heading 1"}
+            isSelected={currentBlockName === 'Heading 1'}
             onClick={() =>
               props.editor
                 .chain()
@@ -87,7 +89,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Heading 2"
             icon={RiH2}
-            isSelected={currentBlockName === "Heading 2"}
+            isSelected={currentBlockName === 'Heading 2'}
             onClick={() =>
               props.editor
                 .chain()
@@ -100,7 +102,7 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Heading 3"
             icon={RiH3}
-            isSelected={currentBlockName === "Heading 3"}
+            isSelected={currentBlockName === 'Heading 3'}
             onClick={() =>
               props.editor
                 .chain()
@@ -113,26 +115,26 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           <DropdownBlockItem
             title="Bullet List"
             icon={RiListUnordered}
-            isSelected={currentBlockName === "Bullet List"}
+            isSelected={currentBlockName === 'Bullet List'}
             onClick={() =>
               props.editor
                 .chain()
                 .focus()
                 .unsetBlockHeading()
-                .setBlockList("li")
+                .setBlockList('li')
                 .run()
             }
           />
           <DropdownBlockItem
             title="Numbered List"
             icon={RiListOrdered}
-            isSelected={currentBlockName === "Numbered List"}
+            isSelected={currentBlockName === 'Numbered List'}
             onClick={() =>
               props.editor
                 .chain()
                 .focus()
                 .unsetBlockHeading()
-                .setBlockList("oli")
+                .setBlockList('oli')
                 .run()
             }
           />
@@ -140,42 +142,41 @@ export const BubbleMenu = (props: { editor: Editor }) => {
       </DropdownMenu>
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleBold().run()}
-        isSelected={props.editor.isActive("bold")}
+        isSelected={props.editor.isActive('bold')}
         mainTooltip="Bold"
-        secondaryTooltip={formatKeyboardShortcut("Mod+B")}
+        secondaryTooltip={formatKeyboardShortcut('Mod+B')}
         icon={RiBold}
       />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleItalic().run()}
-        isSelected={props.editor.isActive("italic")}
+        isSelected={props.editor.isActive('italic')}
         mainTooltip="Italic"
-        secondaryTooltip={formatKeyboardShortcut("Mod+I")}
+        secondaryTooltip={formatKeyboardShortcut('Mod+I')}
         icon={RiItalic}
       />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleUnderline().run()}
-        isSelected={props.editor.isActive("underline")}
+        isSelected={props.editor.isActive('underline')}
         mainTooltip="Underline"
-        secondaryTooltip={formatKeyboardShortcut("Mod+U")}
+        secondaryTooltip={formatKeyboardShortcut('Mod+U')}
         icon={RiUnderline}
       />
       <SimpleToolbarButton
         onClick={() => props.editor.chain().focus().toggleStrike().run()}
-        isDisabled={props.editor.isActive("strike")}
         mainTooltip="Strike-through"
-        secondaryTooltip={formatKeyboardShortcut("Mod+Shift+X")}
+        secondaryTooltip={formatKeyboardShortcut('Mod+Shift+X')}
         icon={RiStrikethrough}
       />
       <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().sinkListItem("block").run()}
-        isDisabled={!props.editor.can().sinkListItem("block")}
+        onClick={() => props.editor.chain().focus().sinkListItem('block').run()}
+        isDisabled={!props.editor.can().sinkListItem('block')}
         mainTooltip="Indent"
-        secondaryTooltip={formatKeyboardShortcut("Tab")}
+        secondaryTooltip={formatKeyboardShortcut('Tab')}
         icon={RiIndentIncrease}
       />
 
       <SimpleToolbarButton
-        onClick={() => props.editor.chain().focus().liftListItem("block").run()}
+        onClick={() => props.editor.chain().focus().liftListItem('block').run()}
         isDisabled={
           !props.editor.can().command(({ state }) => {
             const block = findBlock(state.selection);
@@ -187,15 +188,15 @@ export const BubbleMenu = (props: { editor: Editor }) => {
           })
         }
         mainTooltip="Decrease Indent"
-        secondaryTooltip={formatKeyboardShortcut("Shift+Tab")}
+        secondaryTooltip={formatKeyboardShortcut('Shift+Tab')}
         icon={RiIndentDecrease}
       />
 
       <LinkToolbarButton
         // editor={props.editor}
-        isSelected={props.editor.isActive("link")}
+        isSelected={props.editor.isActive('link')}
         mainTooltip="Link"
-        secondaryTooltip={formatKeyboardShortcut("Mod+K")}
+        secondaryTooltip={formatKeyboardShortcut('Mod+K')}
         icon={RiLink}
         editor={props.editor}
       />

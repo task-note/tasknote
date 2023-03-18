@@ -1,4 +1,5 @@
 import { getNodeType, mergeAttributes, Node } from '@tiptap/core';
+import { TextStyle } from '@tiptap/extension-text-style';
 import { Fragment, Slice } from 'prosemirror-model';
 import { Selection, TextSelection } from 'prosemirror-state';
 import { canSplit, ReplaceAroundStep } from 'prosemirror-transform';
@@ -210,15 +211,15 @@ export const Block = Node.create<IBlock>({
                     firstChildSize = currentNode.firstChild?.nodeSize;
                   }
                   // console.log("-->", firstChildSize);
-                  const mark = editor.schema.mark('strike');
-                  const italic = editor.schema.mark('italic');
+                  // const mark = editor.schema.mark('strike');
+                  const color = editor.schema.mark('textStyle');
                   const endPos = position + firstChildSize;
                   if (checked) {
-                    tr.addMark(position + 2, endPos, mark);
-                    tr.addMark(position + 2, endPos, italic);
+                    // tr.addMark(position + 2, endPos, mark);
+                    tr.addMark(position + 2, endPos, color);
                   } else {
-                    tr.removeMark(position + 2, endPos, mark);
-                    tr.removeMark(position + 2, endPos, italic);
+                    // tr.removeMark(position + 2, endPos, mark);
+                    tr.removeMark(position + 2, endPos, color);
                   }
                 }
 

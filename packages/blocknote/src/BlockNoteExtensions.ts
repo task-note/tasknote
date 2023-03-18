@@ -9,6 +9,7 @@ import HardBreak from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
+import TextStyle from "@tiptap/extension-text-style";
 import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
 import { blocks } from "./extensions/Blocks";
@@ -64,6 +65,7 @@ export const getBlockNoteExtensions = () => {
     Code,
     Italic,
     Strike,
+    TextStyle.configure({ HTMLAttributes: { style: 'color: #9e9e9e' } }),
     Underline,
     HyperlinkMark,
     FixedParagraph,
