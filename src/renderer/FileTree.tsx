@@ -77,6 +77,8 @@ interface FileTreeProps {
   width: number;
   selCallback: OnSelectType | undefined;
   newRootFolderCB: () => void | undefined;
+  newFileCB: () => void | undefined;
+  newFolderCB: () => void | undefined;
 }
 
 class FileTree extends Component<FileTreeProps, FileTreeState> {
@@ -135,6 +137,16 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
       return true;
     };
   }
+
+  onNewFolder = () => {
+    const { newFolderCB } = this.props;
+    newFolderCB();
+  };
+
+  onNewFile = () => {
+    const { newFileCB } = this.props;
+    newFileCB();
+  };
 
   onRename = () => {
     this.contextMenu?.hide();
@@ -231,6 +243,10 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
             <Section>
               <ButtonItem onClick={this.onDelete}>Delete</ButtonItem>
               <ButtonItem onClick={this.onRename}>Rename</ButtonItem>
+            </Section>
+            <Section hasSeparator>
+              <ButtonItem onClick={this.onNewFolder}>New Folder</ButtonItem>
+              <ButtonItem onClick={this.onNewFile}>New Project Note</ButtonItem>
             </Section>
           </MenuGroup>
         </div>,

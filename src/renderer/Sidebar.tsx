@@ -193,6 +193,8 @@ const NaviMenu = () => {
             width={currSideWidth}
             selCallback={onSelect}
             newRootFolderCB={newRootFolder}
+            newFileCB={newFile}
+            newFolderCB={newFolder}
           />
         </NavigationContent>
         <NavigationFooter>
