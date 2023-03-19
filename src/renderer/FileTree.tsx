@@ -39,7 +39,7 @@ interface FileTreeState {
   selectedKeys: Key[];
 }
 
-export type OnSelectType = (node: TreeDataType) => void;
+export type OnSelectType = (node: TreeDataType | undefined) => void;
 
 function findNode(
   key: string,
@@ -120,6 +120,10 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
   }
 
   getValidator(key: string | undefined) {
+    if (key === '.') {
+      const { gData } = this.state;
+      return nameValidator.bind(this, gData, undefined);
+    }
     if (key) {
       const { gData } = this.state;
       const [selNode, siblings] = findNode(key, gData);
@@ -327,7 +331,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     tree?.setExpandedKeys(extendedKeys);
     const { selCallback } = this.props;
     const selNode = this.getNodeByKey(sel);
-    if (selCallback && selNode) {
+    if (selCallback) {
       selCallback(selNode);
     }
   }

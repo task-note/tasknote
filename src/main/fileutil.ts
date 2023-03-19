@@ -13,7 +13,7 @@ function baseDir() {
 function unifyPath(path: string) {
   let dstPath = path;
   if (path.startsWith('.')) {
-    dstPath = `${baseDir()}/${path}`;
+    dstPath = `${baseDir()}/${path.substring(2)}`;
   }
   return dstPath;
 }
@@ -192,7 +192,7 @@ export default async function handleFileCommands(
     let content = '';
     if (args.length < 3 || args[2].length === 0) {
       if (fs.existsSync(dstPath)) {
-        event.reply('writefile', { errno: 1 });
+        event.reply('writefile', { errno: 1 }, dstPath);
         return;
       }
     } else {
@@ -203,7 +203,7 @@ export default async function handleFileCommands(
       if (err) {
         log.info('<<!>> writefile, path=', dstPath, err);
       }
-      event.reply('writefile', err);
+      event.reply('writefile', err, dstPath);
     });
   } else if (args[0] === 'readfile') {
     log.info('readfile', args[1]);

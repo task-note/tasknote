@@ -53,12 +53,12 @@ function makeDir(path: string, cb: LoadFilesCB) {
 
 function makeFile(path: string, cb: LoadFilesCB) {
   window.electron.ipcRenderer.sendMessage('fs', ['writefile', path]);
-  window.electron.ipcRenderer.once('writefile', (err) => {
+  window.electron.ipcRenderer.once('writefile', (err, dstPath) => {
     if (err) {
       error('writefile result:', err);
       return;
     }
-    loadFiles(cb, path);
+    loadFiles(cb, dstPath as string);
   });
 }
 

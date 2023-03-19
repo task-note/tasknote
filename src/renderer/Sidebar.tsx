@@ -18,8 +18,10 @@ import FileTree from './FileTree';
 import showInputDialog from './InputDialog';
 import { makeDir, TreeDataType, makeFile } from './FileOp';
 import { log, error } from './Logger';
+import { setNaviCallbacks } from './Hello';
 
 let currSideWidth = 250;
+
 const NaviMenu = () => {
   const fileTreeRef: React.RefObject<FileTree> = useRef(null);
   const navigate = useNavigate();
@@ -42,6 +44,8 @@ const NaviMenu = () => {
         } else {
           prefix = target;
         }
+      } else {
+        target = prefix;
       }
     }
     showInputDialog(
@@ -76,15 +80,20 @@ const NaviMenu = () => {
     let prefix = '.';
     let target;
     if (currSel && currSel.length > 0) {
-      prefix = currSel[0] as string;
-      const selNode = fileTree?.getNodeByKey(prefix);
-      if (selNode?.isLeaf) {
-        target = prefix;
-        prefix = prefix.substring(0, prefix.lastIndexOf('/'));
-      } else if (selNode?.children) {
-        if (selNode?.children.length > 0) {
-          target = selNode?.children[0].key;
+      target = currSel[0] as string;
+      if (target.length > 0) {
+        prefix = target;
+        const selNode = fileTree?.getNodeByKey(prefix);
+        if (selNode?.isLeaf) {
+          target = prefix;
+          prefix = prefix.substring(0, prefix.lastIndexOf('/'));
+        } else if (selNode?.children) {
+          if (selNode?.children.length > 0) {
+            target = selNode?.children[0].key;
+          }
         }
+      } else {
+        target = prefix;
       }
     }
     showInputDialog(
@@ -100,6 +109,8 @@ const NaviMenu = () => {
       fileTree?.getValidator(target)
     );
   };
+
+  setNaviCallbacks(newFile, newFolder);
 
   const foo = () => {
     navigate('/');
@@ -136,8 +147,12 @@ const NaviMenu = () => {
     }
   };
 
-  const onSelect = (node: TreeDataType) => {
-    navigateTo(node);
+  const onSelect = (node: TreeDataType | undefined) => {
+    if (node) {
+      navigateTo(node);
+    } else {
+      navigate('/');
+    }
   };
 
   return (
