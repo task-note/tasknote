@@ -1,0 +1,16 @@
+{
+  "ProjectName": "Project Notes",
+  "About": "About Project Notes",
+  "HideApp": "Hide Project Notes",
+  "HideOthers": "Hide other programs",
+  "Show All": "Show all windows",
+  "Quit": "Quit",
+  "NewFolder": " New Project Folder",
+  "NewProjectNote": "New Project Notes",
+  "slogan": "Organize your project like this!",
+  "New Folder Tip": "Create New Project Folder",
+  "New Folder Prompt": "Please input the project folder name:",
+  "New Note Tip": "Create New Note",
+  "New Note Prompt": "Please input the project note name:",
+  "Folder": "Folders"
+}

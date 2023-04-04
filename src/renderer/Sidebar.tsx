@@ -11,6 +11,7 @@ import {
   ButtonItem,
 } from '@atlaskit/side-navigation';
 import { token } from '@atlaskit/tokens';
+import { useTranslation } from 'react-i18next';
 
 import './Sidebar.css';
 import { NewFileIcon, NewFolderIcon, MainIcon } from './CustomIcons';
@@ -25,6 +26,7 @@ let currSideWidth = 250;
 const NaviMenu = () => {
   const fileTreeRef: React.RefObject<FileTree> = useRef(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const newFolderInternal = (isRoot: boolean) => {
     const fileTree = fileTreeRef.current;
@@ -49,8 +51,8 @@ const NaviMenu = () => {
       }
     }
     showInputDialog(
-      'Create New Project Folder',
-      'Please input the project folder name:',
+      t('New Folder Tip'),
+      t('New Folder Prompt'),
       (val: string) => {
         makeDir(
           `${prefix}/${encodeURIComponent(val)}`,
@@ -97,8 +99,8 @@ const NaviMenu = () => {
       }
     }
     showInputDialog(
-      'Create New Note',
-      'Please input the project note name:',
+      t('New Note Tip'),
+      t('New Note Prompt'),
       (val: string) => {
         makeFile(
           `${prefix}/${encodeURIComponent(val)}`,
@@ -159,7 +161,7 @@ const NaviMenu = () => {
     <div className="app-sidebar-content">
       <div className="app-sidebar-inner">
         <NavigationHeader>
-          <Header description="">Project Note</Header>
+          <Header description="">{t('ProjectName')}</Header>
           <Section>
             <ButtonItem
               iconBefore={
@@ -171,7 +173,7 @@ const NaviMenu = () => {
               }
               onClick={newFolder}
             >
-              New Folder
+              {t('NewFolder')}
             </ButtonItem>
             <ButtonItem
               iconBefore={
@@ -183,7 +185,7 @@ const NaviMenu = () => {
               }
               onClick={newFile}
             >
-              New Project Note
+              {t('NewProjectNote')}
             </ButtonItem>
           </Section>
         </NavigationHeader>

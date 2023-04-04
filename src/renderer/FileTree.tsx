@@ -22,6 +22,7 @@ import { log, warn, error } from './Logger';
 import showMessageBox from './messageBox';
 import showInputDialog from './InputDialog';
 import { IconCirclePlus } from './CustomIcons';
+import i18n from './i18nclient';
 
 const STYLE = `
 .rc-tree-child-tree {
@@ -354,7 +355,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
 
   render() {
     const { gData, selectedKeys } = this.state;
-    const { width, newRootFolderCB } = this.props;
+    const { width, newRootFolderCB, t } = this.props;
     const sideWidth = width - 35;
 
     return (
@@ -362,7 +363,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
         <button id="new_folder" type="button" onClick={newRootFolderCB}>
           <IconCirclePlus />
         </button>
-        <span className="filetree_title">Folders</span>
+        <span className="filetree_title">{i18n.t('Folder')}</span>
         <style dangerouslySetInnerHTML={{ __html: STYLE }} />
         <div style={{ display: 'flex', width: sideWidth, overflow: 'hidden' }}>
           <div style={{ flex: '1 1 50%' }}>

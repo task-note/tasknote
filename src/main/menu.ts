@@ -18,7 +18,7 @@ export default class MenuBuilder {
     this.mainWindow = mainWindow;
   }
 
-  buildMenu(): Menu {
+  buildMenu(i18n): Menu {
     if (
       process.env.NODE_ENV === 'development' ||
       process.env.DEBUG_PROD === 'true'
@@ -28,7 +28,7 @@ export default class MenuBuilder {
 
     const template =
       process.platform === 'darwin'
-        ? this.buildDarwinTemplate()
+        ? this.buildDarwinTemplate(i18n)
         : this.buildDefaultTemplate();
 
     const menu = Menu.buildFromTemplate(template);
@@ -52,31 +52,31 @@ export default class MenuBuilder {
     });
   }
 
-  buildDarwinTemplate(): MenuItemConstructorOptions[] {
+  buildDarwinTemplate(i18n): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Electron',
+      label: i18n.t('ProjectName'),
       submenu: [
         {
-          label: 'About ElectronReact',
+          label: i18n.t('About'),
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
         { label: 'Services', submenu: [] },
         { type: 'separator' },
         {
-          label: 'Hide ElectronReact',
+          label: i18n.t('HideApp'),
           accelerator: 'Command+H',
           selector: 'hide:',
         },
         {
-          label: 'Hide Others',
+          label: i18n.t('HideOthers'),
           accelerator: 'Command+Shift+H',
           selector: 'hideOtherApplications:',
         },
-        { label: 'Show All', selector: 'unhideAllApplications:' },
+        { label: i18n.t('Show All'), selector: 'unhideAllApplications:' },
         { type: 'separator' },
         {
-          label: 'Quit',
+          label: i18n.t('Quit'),
           accelerator: 'Command+Q',
           click: () => {
             app.quit();

@@ -1,0 +1,16 @@
+{
+  "ProjectName": "项目笔记",
+  "About": "关于项目笔记",
+  "HideApp": "隐藏项目笔记",
+  "HideOthers": "隐藏其它程序",
+  "Show All": "显示所有窗口",
+  "Quit": "退出",
+  "NewFolder": " 新建项目目录",
+  "NewProjectNote": "新建项目笔记",
+  "slogan": "不一样的项目笔记！",
+  "New Folder Tip": "创建项目目录",
+  "New Folder Prompt": "请输入项目目录的名称:",
+  "New Note Tip": "创建项目笔记",
+  "New Note Prompt": "请输入项目笔记的名称:",
+  "Folder": "目录"
+}

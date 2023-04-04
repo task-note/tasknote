@@ -15,6 +15,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import handleFileCommands from './fileutil';
+import i18n from './i18n';
 
 class AppUpdater {
   constructor() {
@@ -108,8 +109,22 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
+  ipcMain.on('get-initial-translations', (event) => {
+    event.reply(
+      'get-initial-translations',
+      i18n.getResourceBundle('cn', 'translation')
+    );
+  });
+
+  i18n.on('loaded', () => {
+    i18n.changeLanguage('cn');
+    i18n.off('loaded');
+  });
+
   const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  i18n.on('languageChanged', () => {
+    menuBuilder.buildMenu(i18n);
+  });
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

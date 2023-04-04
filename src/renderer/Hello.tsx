@@ -1,4 +1,5 @@
 import Button from '@atlaskit/button';
+import { useTranslation } from 'react-i18next';
 import icon from '../../assets/tasknote.png';
 import { NewFileIcon, NewFolderIcon } from './CustomIcons';
 
@@ -12,27 +13,28 @@ function setNaviCallbacks(newFile: VoidCallback, newFolder: VoidCallback) {
 }
 
 function Hello() {
+  const { t } = useTranslation();
   return (
     <div id="HelloInner">
       <div id="HelloBox">
         <div className="Hello">
           <img width="200" alt="icon" src={icon} />
         </div>
-        <h1>Organize your project like this!</h1>
+        <h1>{t('slogan')}</h1>
         <div className="Hello">
           <Button
             appearance="primary"
             onClick={newFolderCB}
             iconBefore={<NewFolderIcon label="" size="small" />}
           >
-            New Folder
+            {t('NewFolder')}
           </Button>
           <Button
             appearance="primary"
             onClick={newFileCB}
             iconBefore={<NewFileIcon label="" size="small" />}
           >
-            New Project Note
+            {t('NewProjectNote')}
           </Button>
         </div>
       </div>

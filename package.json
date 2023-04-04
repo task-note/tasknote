@@ -155,7 +155,10 @@
     "uuid": "^8.3.2",
     "prop-types": "^15.7.2",
     "react-intersection-observer": "^8.26.2",
-    "@material-ui/icons": "^4.11.3"
+    "@material-ui/icons": "^4.11.3",
+    "i18next": "^22.4.12",
+    "react-i18next": "^12.2.0",
+    "i18next-fs-backend": "^2.1.1"
   },
   "overrides": {
     "react-dom": "$react-dom",
