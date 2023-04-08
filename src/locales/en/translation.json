@@ -1,6 +1,7 @@
 {
   "ProjectName": "Project Notes",
   "About": "About Project Notes",
+  "version": "0.1.0",
   "HideApp": "Hide Project Notes",
   "HideOthers": "Hide other programs",
   "Show All": "Show all windows",
@@ -22,5 +23,8 @@
   "RenameFolder": "Rename Project Folder",
   "DeleteTips": "Do you want to delete the project",
   "DropDuplicateTips" : "Same name file exists in the destination folder, Do you want replace",
-  "DropFailTips": "Same name file or folder exists in the destination folder"
+  "DropFailTips": "Same name file or folder exists in the destination folder",
+  "cn": "Chinese",
+  "en": "English",
+  "Language": "Language"
 }

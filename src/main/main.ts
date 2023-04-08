@@ -15,7 +15,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import handleFileCommands from './fileutil';
-import i18n from './i18n';
+import i18n, { i18n_config } from './i18n';
 
 class AppUpdater {
   constructor() {
@@ -80,6 +80,8 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  log.info('-->', __dirname);
+
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
@@ -119,11 +121,16 @@ const createWindow = async () => {
   i18n.on('loaded', () => {
     i18n.changeLanguage('cn');
     i18n.off('loaded');
+
+    app.setAboutPanelOptions({
+      applicationName: i18n.t('ProjectName') as string,
+      applicationVersion: i18n.t('version') as string,
+    });
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
   i18n.on('languageChanged', () => {
-    menuBuilder.buildMenu(i18n);
+    menuBuilder.buildMenu(i18n, i18n_config.supportedLngs, mainWindow);
   });
 
   // Open urls in the user's browser

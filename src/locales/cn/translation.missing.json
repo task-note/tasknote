@@ -1,3 +1,13 @@
 {
-  "HideApp": "HideApp"
+  "HideApp": "HideApp",
+  "Edit": "Edit",
+  "Undo": "Undo",
+  "Redo": "Redo",
+  "Cut": "Cut",
+  "Copy": "Copy",
+  "Paste": "Paste",
+  "Select All": "Select All",
+  "Minimize": "Minimize",
+  "Learn More": "Learn More",
+  "cimode": "cimode"
 }

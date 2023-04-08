@@ -1,4 +1,22 @@
 {
   "ProjectName": "ProjectName",
-  "About": "About"
+  "About": "About",
+  "cimode": "cimode",
+  "Edit": "Edit",
+  "Undo": "Undo",
+  "Redo": "Redo",
+  "Cut": "Cut",
+  "Copy": "Copy",
+  "Paste": "Paste",
+  "Select All": "Select All",
+  "View": "View",
+  "Reload": "Reload",
+  "Toggle Full Screen": "Toggle Full Screen",
+  "Toggle Developer Tools": "Toggle Developer Tools",
+  "Window": "Window",
+  "Minimize": "Minimize",
+  "Bring All to Front": "Bring All to Front",
+  "Help": "Help",
+  "Learn More": "Learn More",
+  "Search Issues": "Search Issues"
 }

@@ -236,8 +236,8 @@
     "less-loader": "^11.1.0"
   },
   "build": {
-    "productName": "TaskNote",
-    "appId": "top.tasknote",
+    "productName": "ProjectNotes",
+    "appId": "top.projectnotes",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -291,12 +291,13 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./src/locales/**"
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "owner": "project-notes",
+      "repo": "project-notes"
     }
   },
   "collective": {
