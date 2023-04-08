@@ -168,6 +168,11 @@ export default class MenuBuilder {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
           },
         },
+        { type: 'separator' },
+        {
+          label: i18n.t('Language'),
+          submenu: languageMenu,
+        },
       ],
     };
     const subMenuWindow: DarwinMenuItemConstructorOptions = {
