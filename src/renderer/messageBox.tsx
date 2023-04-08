@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Button from '@atlaskit/button/standard-button';
+import { useTranslation } from 'react-i18next';
 
 import Modal, {
   ModalBody,
@@ -22,6 +23,7 @@ interface MessageBoxProp {
 
 function MessageBox({ title, message, callback, okname }: MessageBoxProp) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
   openMessageBox = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => {
     setIsOpen(false);
@@ -45,11 +47,11 @@ function MessageBox({ title, message, callback, okname }: MessageBoxProp) {
           <ModalFooter>
             {hasCancel && (
               <Button appearance="subtle" onClick={closeModal}>
-                Cancel
+                {t('Cancel')}
               </Button>
             )}
             <Button appearance="warning" onClick={okModal} autoFocus>
-              {okname}
+              {t(okname)}
             </Button>
           </ModalFooter>
         </Modal>

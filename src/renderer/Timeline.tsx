@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import FolderIcon from '@material-ui/icons/Folder';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Button, { ButtonGroup } from '@atlaskit/button';
+import { useTranslation } from 'react-i18next';
 import { NewFileIcon, NewFolderIcon } from './CustomIcons';
 import {
   VerticalTimeline,
@@ -74,6 +75,7 @@ function getTimelineContent(
 }
 
 function TimelineHeader({ title, newFile, newFolder }: TimelineHeaderProp) {
+  const { t } = useTranslation();
   return (
     <div id="timeline_toolbar">
       <h1 id="timeline_title">{title}</h1>
@@ -83,13 +85,13 @@ function TimelineHeader({ title, newFile, newFolder }: TimelineHeaderProp) {
             onClick={newFolder}
             iconBefore={<NewFolderIcon label="" size="small" />}
           >
-            New Folder
+            {t('NewFolder')}
           </Button>
           <Button
             onClick={newFile}
             iconBefore={<NewFileIcon label="" size="small" />}
           >
-            New Project Note
+            {t('NewProjectNote')}
           </Button>
         </ButtonGroup>
       </div>

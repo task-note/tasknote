@@ -161,18 +161,18 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     if (!selNode) {
       return;
     }
-    const type = selNode?.isLeaf ? 'note' : 'folder';
+    const titleIdx = selNode?.isLeaf ? 'RenameNote' : 'RenameFolder';
     log('rename current=', selFilePath, selNode?.title);
     showInputDialog(
-      `Rename Project ${type}`,
-      'Please input your new name:',
+      i18n.t(titleIdx),
+      i18n.t('New Name Prompt'),
       (val: string) => {
         log('-->', val);
         renameItem(selFilePath, val, this.updateTree.bind(this));
       },
       selNode.title,
       nameValidator.bind(this, siblings, selNode),
-      'Rename'
+      i18n.t('Rename') as string
     );
   };
 
@@ -184,10 +184,11 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
     const selFilePath = currSel[0].toString();
     const selNode = this.getNodeByKey(selFilePath);
     this.contextMenu?.hide();
-    const type = selNode?.isLeaf ? 'note' : 'folder';
+    const type = selNode?.isLeaf ? i18n.t('note') : i18n.t('folder');
+    const delTip = i18n.t('DeleteTips');
     showMessageBox(
-      'Delete Project Notes',
-      `Do you want to delete the project ${type} "${selNode?.title}" ?`,
+      i18n.t('Delete Project Notes'),
+      `${delTip} ${type} "${selNode?.title}" ?`,
       (val) => {
         log('onDelete', val, selFilePath);
         if (val) {
@@ -242,12 +243,20 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
         >
           <MenuGroup>
             <Section>
-              <ButtonItem onClick={this.onDelete}>Delete</ButtonItem>
-              <ButtonItem onClick={this.onRename}>Rename</ButtonItem>
+              <ButtonItem onClick={this.onDelete}>
+                {i18n.t('Delete')}
+              </ButtonItem>
+              <ButtonItem onClick={this.onRename}>
+                {i18n.t('Rename')}
+              </ButtonItem>
             </Section>
             <Section hasSeparator>
-              <ButtonItem onClick={this.onNewFolder}>New Folder</ButtonItem>
-              <ButtonItem onClick={this.onNewFile}>New Project Note</ButtonItem>
+              <ButtonItem onClick={this.onNewFolder}>
+                {i18n.t('NewFolder')}
+              </ButtonItem>
+              <ButtonItem onClick={this.onNewFile}>
+                {i18n.t('NewProjectNote')}
+              </ButtonItem>
             </Section>
           </MenuGroup>
         </div>,
@@ -297,10 +306,10 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
           return;
         }
         showMessageBox(
-          'Drop Failed',
-          'Same name file or folder exists in the destination folder',
+          i18n.t('Drop Failed'),
+          i18n.t('DropFailTips'),
           () => {},
-          'OK'
+          i18n.t('OK') as string
         );
       } else if (result === 1) {
         if (dropPath === dragKey) {
@@ -308,8 +317,8 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
           return;
         }
         showMessageBox(
-          'Confirm',
-          'Same name file exists in the destination folder, Do you want replace',
+          i18n.t('Confirm'),
+          i18n.t('DropDuplicateTips'),
           (val) => {
             if (val === 1) {
               renameItem(dragKey, dropPath, this.updateTree.bind(this));
@@ -317,7 +326,7 @@ class FileTree extends Component<FileTreeProps, FileTreeState> {
               warn('User abandon file replace:', val);
             }
           },
-          'Yes'
+          i18n.t('Yes') as string
         );
       } else {
         error('unknown drop error:', result);

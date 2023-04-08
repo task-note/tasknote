@@ -12,5 +12,15 @@
   "New Folder Prompt": "Please input the project folder name:",
   "New Note Tip": "Create New Note",
   "New Note Prompt": "Please input the project note name:",
-  "Folder": "Folders"
+  "Folder": "Folders",
+  "name_empty": "The name cannot be empty!",
+  "name_duplicate": "The name has been used, cannot rename to it!",
+  "Create": "Create",
+  "Close": "Close",
+  "New Name Prompt": "Please input your new name:",
+  "RenameNote": "Rename Project Note",
+  "RenameFolder": "Rename Project Folder",
+  "DeleteTips": "Do you want to delete the project",
+  "DropDuplicateTips" : "Same name file exists in the destination folder, Do you want replace",
+  "DropFailTips": "Same name file or folder exists in the destination folder"
 }

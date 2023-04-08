@@ -15,6 +15,7 @@ import CrossIcon from '@atlaskit/icon/glyph/cross';
 import { N500 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 import tippy from 'tippy.js';
+import { useTranslation } from 'react-i18next';
 import { warn } from './Logger';
 
 export type InputCallback = (val: string) => void;
@@ -55,6 +56,7 @@ function InputDialog({
   okName,
 }: InputDialogProp) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   openModal = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
@@ -69,13 +71,13 @@ function InputDialog({
       const newName = obj.name as string;
       if (newName.trim().length === 0) {
         warn('empty, show error tippy!');
-        displayTips('#name', 'The name cannot be empty!');
+        displayTips('#name', t('name_empty'));
         return;
       }
       if (validator) {
         if (!validator(newName)) {
           warn('validate name failed, show error tippy!');
-          displayTips('#name', 'The name has been used, cannot rename to it!');
+          displayTips('#name', t('name_duplicate'));
           return;
         }
       }
@@ -135,10 +137,10 @@ function InputDialog({
             </ModalBody>
             <ModalFooter>
               <Button appearance="subtle" onClick={closeModal}>
-                Close
+                {t('Close')}
               </Button>
               <Button appearance="primary" type="submit">
-                {okName}
+                {t(okName)}
               </Button>
             </ModalFooter>
           </form>
