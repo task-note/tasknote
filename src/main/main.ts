@@ -130,7 +130,11 @@ const createWindow = async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   i18n.on('languageChanged', () => {
-    menuBuilder.buildMenu(i18n, i18n_config.supportedLngs, mainWindow);
+    if (mainWindow) {
+      menuBuilder.buildMenu(i18n, i18n_config.supportedLngs, mainWindow);
+    } else {
+      log.error('language changed, mainwindow is null or undefined');
+    }
   });
 
   // Open urls in the user's browser

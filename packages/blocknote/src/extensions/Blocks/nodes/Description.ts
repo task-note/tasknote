@@ -32,7 +32,7 @@ export const DescBlock = Node.create<IBlock>({
   parseHTML() {
     return [
       {
-        tag: "div",
+        tag: "span",
       },
     ];
   },
@@ -41,7 +41,7 @@ export const DescBlock = Node.create<IBlock>({
     // TODO: The extra nested div is only needed for placeholders, different solution (without extra div) would be preferable
     // We can't use the other div because the ::before attribute on that one is already reserved for list-bullets
     return [
-      "div",
+      "span",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         class: styles.blockDesc,
       }),
