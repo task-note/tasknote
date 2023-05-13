@@ -24,7 +24,7 @@
   "DeleteTips": "Do you want to delete the project",
   "DropDuplicateTips" : "Same name file exists in the destination folder, Do you want replace",
   "DropFailTips": "Same name file or folder exists in the destination folder",
-  "cn": "Chinese",
+  "cn": "简体中文",
   "en": "English",
   "Language": "Language"
 }
